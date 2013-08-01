@@ -51,10 +51,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OSG);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OSG);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>osg.lib;osgDB.lib;osgViewer.lib;OpenThreads.lib;osgd.lib;osgDBd.lib;osgViewerd.lib;OpenThreadsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -105,6 +108,8 @@
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="EST_MFC.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="osgScene.h" />
+    <ClInclude Include="planeUpdate.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -113,6 +118,8 @@
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="EST_MFC.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="osgScene.cpp" />
+    <ClCompile Include="planeUpdate.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -124,4 +131,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="EST_MFC.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
