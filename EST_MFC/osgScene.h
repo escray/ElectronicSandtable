@@ -1,7 +1,6 @@
 #pragma once
 #include <OpenThreads/Thread>
 #include <osgViewer/Viewer>
-#include "osgRenderThread.h"
 #include "planeUpdate.h"
 
 class osgScene;
@@ -35,7 +34,6 @@ public:
 private:
 	osgScene *_oScene;
 };
-
 
 class osgScene
 {

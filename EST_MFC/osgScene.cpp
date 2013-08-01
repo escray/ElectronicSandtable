@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "osgScene.h"
-#include "osgRenderThread.h"
 #include "planeUpdate.h"
 
 // TODO: Ìæ»»ÎªÑ­»·£¿
