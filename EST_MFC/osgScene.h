@@ -1,3 +1,7 @@
+// COsg.h
+//  [8/15/2013 zhaorui]
+// TODO: rename to coreOSG.h
+
 #pragma once
 #include <OpenThreads/Thread>
 #include <osgViewer/Viewer>

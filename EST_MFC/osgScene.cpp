@@ -12,7 +12,6 @@ osgScene::osgScene( HWND hWnd ) : m_hWnd(hWnd)
 {
 }
 
-
 osgScene::~osgScene(void)
 {
 	m_threadOsgRender.cancel();
@@ -24,12 +23,14 @@ osgScene::~osgScene(void)
 
 void osgScene::cancelThreads()
 {
-	
+	m_threadOsgRender.cancel();
+	m_Viewer->setDone(true);
+	m_Viewer->stopThreading();
 }
 
 void osgScene::initializeOsgScene()
-{
-
+{	
+	//  [8/15/2013 zhaorui] CONTINUED
 }
 
 void osgScene::resetClearTest()

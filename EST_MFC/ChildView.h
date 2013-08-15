@@ -34,6 +34,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
+	osgScene* m_osg;
 	HANDLE mThreadHandle;
 
 	afx_msg void OnDestroy();
