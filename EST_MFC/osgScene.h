@@ -5,6 +5,7 @@
 #pragma once
 #include <OpenThreads/Thread>
 #include <osgViewer/Viewer>
+#include <osgViewer/api/Win32/GraphicsWindowWin32>
 #include "planeUpdate.h"
 
 class osgScene;

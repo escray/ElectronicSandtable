@@ -35,6 +35,16 @@ void osgScene::initializeOsgScene()
 
 void osgScene::resetClearTest()
 {
+	osg::Group* root = new osg::Group;
+	m_osgRootRendNxyGroup = root;
+	m_Viewer = new osgViewer::Viewer();
+	m_Viewer->setRunMaxFrameRate(60.0);
+
+	RECT rect;
+	::GetClientRect(m_hWnd, &rect);
+
+	osg::GraphicsContext::Traits* traits = new osg::GraphicsContext::Traits;
+	osg::ref_ptr<osg::Referenced> windata = new osgViewer::GraphicsWindowWin32::WindowData(m_hWnd);
 
 }
 

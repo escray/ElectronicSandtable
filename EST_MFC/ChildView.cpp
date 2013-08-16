@@ -81,7 +81,7 @@ void CChildView::OnKeyDown( UINT nChar, UINT RepCnt, UINT nFlags )
 		GetParent()->SendMessage(WM_CLOSE);
 	}
 
-	CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+	CWnd::OnKeyDown(nChar, RepCnt, nFlags);
 }
 
 BOOL CChildView::OnEraseBkgnd( CDC* pdc )

@@ -4,7 +4,7 @@
 
 
 #pragma once
-
+#include "osgScene.h"
 
 // CChildView window
 
