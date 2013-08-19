@@ -1,4 +1,4 @@
-// bh-mfc
+
 // EST_MFC.h : main header file for the EST_MFC application
 //
 #pragma once
@@ -14,7 +14,7 @@
 // See EST_MFC.cpp for the implementation of this class
 //
 
-class CEST_MFCApp : public CWinAppEx
+class CEST_MFCApp : public CWinApp
 {
 public:
 	CEST_MFCApp();
@@ -26,14 +26,6 @@ public:
 	virtual int ExitInstance();
 
 // Implementation
-
-public:
-	BOOL  m_bHiColorIcons;
-
-	virtual void PreLoadState();
-	virtual void LoadCustomState();
-	virtual void SaveCustomState();
-
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
 };

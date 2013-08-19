@@ -46,6 +46,13 @@ res\EST_MFC.rc2
     Visual C++. You should place all resources not editable by
     the resource editor in this file.
 
+EST_MFC.reg
+    This is an example .reg file that shows you the kind of registration
+    settings the framework will set for you.  You can use this as a .reg
+    file to go along with your application or just delete it and rely
+    on the default RegisterShellFileTypes registration.
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 For the main frame window:
@@ -55,13 +62,27 @@ MainFrm.h, MainFrm.cpp
     These files contain the frame class CMainFrame, which is derived from
     CFrameWnd and controls all SDI frame features.
 
-res\Toolbar.bmp
-    This bitmap file is used to create tiled images for the toolbar.
-    The initial toolbar and status bar are constructed in the CMainFrame
-    class. Edit this toolbar bitmap using the resource editor, and
-    update the IDR_MAINFRAME TOOLBAR array in EST_MFC.rc to add
-    toolbar buttons.
 /////////////////////////////////////////////////////////////////////////////
+
+The application wizard creates one document type and one view:
+
+EST_MFCDoc.h, EST_MFCDoc.cpp - the document
+    These files contain your CEST_MFCDoc class.  Edit these files to
+    add your special document data and to implement file saving and loading
+    (via CEST_MFCDoc::Serialize).
+    The Document will have the following strings:
+        File extension:      ive
+        File type ID:        ESTMFC.Document
+        Main frame caption:  EST_MFC
+        Doc type name:       EST_MFC
+        Filter name:         EST_MFC Files (*.ive)
+        File new short name: EST_MFC
+        File type long name: EST_MFC.Document
+
+EST_MFCView.h, EST_MFCView.cpp - the view of the document
+    These files contain your CEST_MFCView class.
+    CEST_MFCView objects are used to view CEST_MFCDoc objects.
+
 
 
 

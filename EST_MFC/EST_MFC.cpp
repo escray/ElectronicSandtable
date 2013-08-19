@@ -8,6 +8,8 @@
 #include "EST_MFC.h"
 #include "MainFrm.h"
 
+#include "EST_MFCDoc.h"
+#include "EST_MFCView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,8 +18,11 @@
 
 // CEST_MFCApp
 
-BEGIN_MESSAGE_MAP(CEST_MFCApp, CWinAppEx)
+BEGIN_MESSAGE_MAP(CEST_MFCApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, &CEST_MFCApp::OnAppAbout)
+	// Standard file based document commands
+	ON_COMMAND(ID_FILE_NEW, &CWinApp::OnFileNew)
+	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
 END_MESSAGE_MAP()
 
 
@@ -25,10 +30,8 @@ END_MESSAGE_MAP()
 
 CEST_MFCApp::CEST_MFCApp()
 {
-	m_bHiColorIcons = TRUE;
-
 	// support Restart Manager
-	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
+	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
 #ifdef _MANAGED
 	// If the application is built using Common Language Runtime support (/clr):
 	//     1) This additional setting is needed for Restart Manager support to work properly.
@@ -63,7 +66,7 @@ BOOL CEST_MFCApp::InitInstance()
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
-	CWinAppEx::InitInstance();
+	CWinApp::InitInstance();
 
 
 	// Initialize OLE libraries
@@ -88,39 +91,43 @@ BOOL CEST_MFCApp::InitInstance()
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
 
 
-	InitContextMenuManager();
-
-	InitKeyboardManager();
-
-	InitTooltipManager();
-	CMFCToolTipInfo ttParams;
-	ttParams.m_bVislManagerTheme = TRUE;
-	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
-		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
-
-	// To create the main window, this code creates a new frame window
-	// object and then sets it as the application's main window object
-	CMainFrame* pFrame = new CMainFrame;
-	if (!pFrame)
+	// Register the application's document templates.  Document templates
+	//  serve as the connection between documents, frame windows and views
+	CSingleDocTemplate* pDocTemplate;
+	pDocTemplate = new CSingleDocTemplate(
+		IDR_MAINFRAME,
+		RUNTIME_CLASS(CEST_MFCDoc),
+		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+		RUNTIME_CLASS(CEST_MFCView));
+	if (!pDocTemplate)
 		return FALSE;
-	m_pMainWnd = pFrame;
-	// create and load the frame with its resources
-	pFrame->LoadFrame(IDR_MAINFRAME,
-		WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, NULL,
-		NULL);
+	AddDocTemplate(pDocTemplate);
 
 
+	// Parse command line for standard shell commands, DDE, file open
+	CCommandLineInfo cmdInfo;
+	ParseCommandLine(cmdInfo);
+
+	// Enable DDE Execute open
+	EnableShellOpen();
+	RegisterShellFileTypes(TRUE);
 
 
-
+	// Dispatch commands specified on the command line.  Will return FALSE if
+	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
+	if (!ProcessShellCommand(cmdInfo))
+		return FALSE;
 
 	// The one and only window has been initialized, so show and update it
-	pFrame->ShowWindow(SW_SHOW);
-	pFrame->UpdateWindow();
+	m_pMainWnd->ShowWindow(SW_SHOW);
+	m_pMainWnd->UpdateWindow();
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
+	// Enable drag/drop open
+	m_pMainWnd->DragAcceptFiles();
 	return TRUE;
 }
 
@@ -129,7 +136,7 @@ int CEST_MFCApp::ExitInstance()
 	//TODO: handle additional resources you may have added
 	AfxOleTerm(FALSE);
 
-	return CWinAppEx::ExitInstance();
+	return CWinApp::ExitInstance();
 }
 
 // CEST_MFCApp message handlers
@@ -170,25 +177,6 @@ void CEST_MFCApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
-}
-
-// CEST_MFCApp customization load/save methods
-
-void CEST_MFCApp::PreLoadState()
-{
-	BOOL bNameValid;
-	CString strName;
-	bNameValid = strName.LoadString(IDS_EDIT_MENU);
-	ASSERT(bNameValid);
-	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
-}
-
-void CEST_MFCApp::LoadCustomState()
-{
-}
-
-void CEST_MFCApp::SaveCustomState()
-{
 }
 
 // CEST_MFCApp message handlers
