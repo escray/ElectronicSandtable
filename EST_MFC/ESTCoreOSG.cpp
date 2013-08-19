@@ -29,13 +29,13 @@ void ESTCoreOSG::InitOSG( std::string filename )
 
 void ESTCoreOSG::InitManipulators( void )
 {
-	trackball = new osgGA::TrackballManipulator;
+	trackball = new osgGA::TrackballManipulator();
 	keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
 
-	keyswitchManipulator->addMatrixManipulator('1', "Trackball", trackball.get());
-	keyswitchManipulator->addMatrixManipulator('2', "ESTManipulator", estManipulator);
-	keyswitchManipulator->addMatrixManipulator('3', "BHManipulator", bhManipulator);
-	keyswitchManipulator->addMatrixManipulator('4', "SouthManiputlator", southManipulator);
+	keyswitchManipulator->addMatrixManipulator('1', "Trackball", trackball.get());	
+	keyswitchManipulator->addMatrixManipulator('2', "BHManipulator", bhManipulator);
+	keyswitchManipulator->addMatrixManipulator('3', "SouthManiputlator", southManipulator);
+	//keyswitchManipulator->addMatrixManipulator('4', "ESTManipulator", estManipulator);
 
 	keyswitchManipulator->selectMatrixManipulator(1);
 }
@@ -43,7 +43,7 @@ void ESTCoreOSG::InitManipulators( void )
 void ESTCoreOSG::InitSceneGraph( void )
 {
 	m_root = new osg::Group;
-	m_node = osgDB::readNodeFile(m_ModelName);
+	m_node = osgDB::readNodeFile("E:\\sourcecode\\bhdata-soft\\BH\\bh_11.ive");
 
 	// 优化模型 Optimize
 	//  [8/19/2013 zhaorui]
@@ -80,17 +80,36 @@ void ESTCoreOSG::InitCameraConfig( void )
 
 	osg::ref_ptr<osg::Camera> camera = new osg::Camera;	
 	camera->setGraphicsContext(gc);
+	camera->setViewport(new osg::Viewport(traits->x, traits->y, traits->width, traits->height));
+	m_viewer->addSlave(camera.get());
+	m_viewer->setCameraManipulator(keyswitchManipulator.get());
+	m_viewer->setSceneData(m_root.get());
+	m_viewer->realize();
+	//m_viewer->run();
 
 }
 
 void ESTCoreOSG::Render( void* ptr )
 {
+	ESTCoreOSG* osg = (ESTCoreOSG*)ptr;
+	osgViewer::Viewer* viewer = osg->getViewer();
+
+	while (!viewer->done())
+	{
+		osg->PreFrameUpdate();
+		viewer->frame();
+		osg->PostFrameUpdate();
+		Sleep(10);
+	}
+
+	AfxMessageBox("程序退出");
+	_endthread();
 
 }
 
 void ESTCoreOSG::ReplaceSceneData( std::string filename )
 {
-
+	
 }
 
 void ESTCoreOSG::OptimizeModel()
@@ -98,4 +117,19 @@ void ESTCoreOSG::OptimizeModel()
 	osgUtil::Optimizer op;
 	op.optimize(m_node.get());
 	op.reset();
+}
+
+osgViewer::Viewer* ESTCoreOSG::getViewer()
+{
+	return m_viewer;
+}
+
+void ESTCoreOSG::PreFrameUpdate( void )
+{
+
+}
+
+void ESTCoreOSG::PostFrameUpdate( void )
+{
+
 }
