@@ -31,19 +31,26 @@ void ESTCoreOSG::InitManipulators( void )
 {
 	trackball = new osgGA::TrackballManipulator();
 	keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
-
+	
 	keyswitchManipulator->addMatrixManipulator('1', "Trackball", trackball.get());	
-	keyswitchManipulator->addMatrixManipulator('2', "BHManipulator", bhManipulator);
-	keyswitchManipulator->addMatrixManipulator('3', "SouthManiputlator", southManipulator);
-	//keyswitchManipulator->addMatrixManipulator('4', "ESTManipulator", estManipulator);
+	keyswitchManipulator->addMatrixManipulator('2', "Flight", new osgGA::FlightManipulator());
+	keyswitchManipulator->addMatrixManipulator('3', "Drive", new osgGA::DriveManipulator());
+	keyswitchManipulator->addMatrixManipulator('4', "Terrain", new osgGA::TerrainManipulator());
+	keyswitchManipulator->addMatrixManipulator('5', "FirstPerson", new osgGA::FirstPersonManipulator());
+	keyswitchManipulator->addMatrixManipulator('6', "SouthManiputlator", southManipulator);
+	keyswitchManipulator->addMatrixManipulator('7', "BHManipulator", bhManipulator.get());	
+	//keyswitchManipulator->addMatrixManipulator('8', "ESTManipulator", estManipulator);
 
-	keyswitchManipulator->selectMatrixManipulator(1);
+	keyswitchManipulator->selectMatrixManipulator(6);
 }
 
 void ESTCoreOSG::InitSceneGraph( void )
 {
 	m_root = new osg::Group;
-	m_node = osgDB::readNodeFile("E:\\sourcecode\\bhdata-soft\\BH\\bh_11.ive");
+	m_node = osgDB::readNodeFile(m_ModelName);
+	//m_node = osgDB::readNodeFile("E:\\sourcecode\\bhdata-soft\\BH\\bh_11.ive");
+	//m_node = osgDB::readNodeFile("E:\\sourcecode\\ElectronicSandtable\\Debug\\data\\1.ive");
+	//m_node = osgDB::readNodeFile("1.ive");
 
 	// 优化模型 Optimize
 	//  [8/19/2013 zhaorui]
@@ -81,11 +88,19 @@ void ESTCoreOSG::InitCameraConfig( void )
 	osg::ref_ptr<osg::Camera> camera = new osg::Camera;	
 	camera->setGraphicsContext(gc);
 	camera->setViewport(new osg::Viewport(traits->x, traits->y, traits->width, traits->height));
+
 	m_viewer->addSlave(camera.get());
 	m_viewer->setCameraManipulator(keyswitchManipulator.get());
+	//m_viewer->setCameraManipulator(trackball.get());
+	//m_viewer->setCamera(camera.get());
+	//bhManipulator->setViewer(m_viewer);
+	//m_viewer->setCameraManipulator(bhManipulator.get());
+
+
+
 	m_viewer->setSceneData(m_root.get());
 	m_viewer->realize();
-	//m_viewer->run();
+	
 
 }
 

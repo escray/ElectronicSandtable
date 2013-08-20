@@ -31,7 +31,7 @@ CEST_MFCDoc::CEST_MFCDoc()
 {
 	// TODO: add one-time construction code here
 	// m_csFileName = "bh_11.ive";
-	m_csFileName = "1.ive";
+	m_csFileName = "bh_11.ive";
 }
 
 CEST_MFCDoc::~CEST_MFCDoc()

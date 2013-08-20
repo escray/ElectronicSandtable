@@ -10,7 +10,6 @@ BHManipulator::BHManipulator(void)
 	_ellipsoid.setRadiusEquator(6378137);
 	_ellipsoid.setRadiusPolar(6378137);
 
-
 	setAutoComputeHomePosition(false);
 
 	_vNe.set(-999,-999,-999.0);
@@ -31,15 +30,12 @@ void BHManipulator::home(const GUIEventAdapter& ,GUIActionAdapter& us)
 //操作器初始化复位
 void BHManipulator::resetPosition()
 {
-	double r=_ellipsoid.getRadiusEquator();
-
-	setLookAtByBlh(osg::Vec3d(38.914702,116.391731,15000.0),osg::Vec3d(39.914702,116.391731,0.0),osg::Vec3d(-999,-999,-999));	
-	osg::Vec3d eye,center,up;
-	getLookAt(eye,center,up);
-	setHomePosition(eye,center,up);
-
+	double r = _ellipsoid.getRadiusEquator();
+	setLookAtByBlh(osg::Vec3d(38.914702,116.391731,15000.0), osg::Vec3d(39.914702,116.391731,0.0), osg::Vec3d(-999,-999,-999));	
+	osg::Vec3d eye, center, up;
+	getLookAt(eye, center, up);
+	setHomePosition(eye, center, up);
 	_a0=0.0;
-
 	double x,y,z;
 	_ellipsoid.convertLatLongHeightToXYZ(39.914702*osg::PI/180.0,116.391731*osg::PI/180.0,0.0,x,y,z);
 	_center.set(x,y,z);
@@ -54,7 +50,7 @@ bool BHManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
 	case(GUIEventAdapter::KEYDOWN):
 		{		
 			//环视
-			if (ea.getKey()=='R')
+			if (ea.getKey()=='R' || ea.getKey()=='r')
 			{					
 				if(_blSaved)return false;;
 
@@ -86,7 +82,7 @@ bool BHManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
 			} 
 
 			//围绕观察点,降低观察"高度",有旋转功能
-			if (ea.getKey()=='D')
+			if (ea.getKey()=='D' || ea.getKey()=='d')
 			{	
 				double x,y,z,b,l,h;
 				_ellipsoid.convertXYZToLatLongHeight(_eye.x(),_eye.y(),_eye.z(),b,l,h);
@@ -111,7 +107,7 @@ bool BHManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
 			}
 
 			//围绕观察点,提升观察"高度",有旋转功能
-			if (ea.getKey()=='I')
+			if (ea.getKey()=='I'||ea.getKey()=='i')
 			{							
 				double x,y,z,b,l,h;
 				_ellipsoid.convertXYZToLatLongHeight(_eye.x(),_eye.y(),_eye.z(),b,l,h);
@@ -142,10 +138,10 @@ bool BHManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
 			//降低之前,要保存以前的"围绕观察点,旋转模式的数据,以便恢复,否则沙盘操作不协调
 
 			//-1保存参数
-			if (ea.getKey()=='X')
+			if (ea.getKey()=='X'||ea.getKey()=='x')
 			{
 				if(_blSaved)return false;
-
+				
 				_eyeSaved=_eye;
 				_rotationSaved=_rotation;
 
@@ -155,10 +151,10 @@ bool BHManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
 			}
 
 			//-2降低高度
-			if (ea.getKey()=='T')
+			if (ea.getKey()=='T' || ea.getKey()=='t')
 			{
 				//如果没有进行状态保存,那么不进行高度改变,主要是为"沙盘环视"和谐考虑
-				if(!_blSaved)return false;;
+				if(!_blSaved)return false;
 
 				double x,y,z,b,l,h,hEye;
 				_ellipsoid.convertXYZToLatLongHeight(_eye.x(),_eye.y(),_eye.z(),b,l,h);
@@ -202,6 +198,13 @@ bool BHManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
 				return false;
 
 			}
+			//  [8/19/2013 zhaorui]
+			//  get home
+			if (ea.getKey() == 0x20)
+			{
+				home(ea, us);
+				return false;
+			}
 
 		}  
 	default:			
@@ -225,25 +228,20 @@ void BHManipulator::setByMatrix(const osg::Matrixd& matrix)
 //观察视图矩阵 ，观察位置、旋转参数确定 
 osg::Matrixd BHManipulator::getMatrix() const
 {
-	return osg::Matrixd::rotate(_rotation)
-		*osg::Matrixd::translate(_eye);
-
+	return osg::Matrixd::rotate(_rotation)*osg::Matrixd::translate(_eye);
 }
 
 osg::Matrixd BHManipulator::getInverseMatrix() const
 {
-	return osg::Matrixd::translate(-_eye)
-		*osg::Matrixd::rotate(_rotation.inverse());
+	return osg::Matrixd::translate(-_eye)*osg::Matrixd::rotate(_rotation.inverse());
 }
 
 void BHManipulator::setLookAtByXyz(const osg::Vec3d eye,const osg::Vec3d center,const osg::Vec3d up)
 {
-	_eye=eye;
-
+	_eye = eye;
 	osg::Matrixd matrix;
-	matrix.makeLookAt(eye,center,up);
-
-	_rotation=matrix.getRotate().inverse();
+	matrix.makeLookAt(eye, center, up);
+	_rotation = matrix.getRotate().inverse();
 }
 
 void BHManipulator::setLookAtByBlh(osg::Vec3d eyeBlh,osg::Vec3d centerBlh,osg::Vec3d up)
@@ -270,7 +268,6 @@ void BHManipulator::setLookAtByBlh(osg::Vec3d eyeBlh,osg::Vec3d centerBlh,osg::V
 
 	setLookAtByXyz(_eye,center,vNe);	
 	if(_vNe.length()>9.0)_vNe=vNe;
-
 }
 
 //ground location's directionN,directionE,directionUp
@@ -329,11 +326,11 @@ void BHManipulator::getUp(osg::Vec3d &vy)
 
 void BHManipulator::getLookAt(osg::Vec3d &eye,osg::Vec3d &center,osg::Vec3d &up)
 {
-	osg::Matrixd  mt=getMatrix();
+	osg::Matrixd  mt = getMatrix();
 	//观察系,分别指向观察点,右,上,右手系
-	osg::Vec3d vx=osg::Vec3d (mt(2,0),mt(2,1),mt(2,2));
-	osg::Vec3d vy=osg::Vec3d (mt(0,0),mt(0,1),mt(0,2));
-	osg::Vec3d vz=osg::Vec3d (mt(1,0),mt(1,1),mt(1,2));
+	osg::Vec3d vx = osg::Vec3d (mt(2,0), mt(2,1), mt(2,2));
+	osg::Vec3d vy = osg::Vec3d (mt(0,0), mt(0,1), mt(0,2));
+	osg::Vec3d vz = osg::Vec3d (mt(1,0), mt(1,1), mt(1,2));
 
 	eye=_eye;
 	center=eye-vx;

@@ -5,7 +5,12 @@
 #include <osgDB/Registry>
 #include <osgDB/ReadFile>
 #include <osgGA/TrackballManipulator>
+#include <osgGA/FlightManipulator>
+#include <osgGA/DriveManipulator>
+#include <osgGA/TerrainManipulator>
+#include <osgGA/FirstPersonManipulator>
 #include <osgGA/KeySwitchMatrixManipulator>
+
 #include <osgUtil/Optimizer>
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
@@ -70,7 +75,7 @@ private:
 	osg::ref_ptr<osgGA::CameraManipulator> cameraManipulator;
 
 	ESTManipulator* estManipulator;
-	BHManipulator* bhManipulator;
+	osg::ref_ptr<BHManipulator> bhManipulator;
 	SouthManipulator* southManipulator;
 
 

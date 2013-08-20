@@ -96,10 +96,12 @@ private:
 	
 	void  getUp(osg::Vec3d &vy);
 public:       
-	//观察点,视线中心
-	osg::Vec3d              _eye,_center;
-	//旋转参数
-	osg::Quat               _rotation;
+	// 观察点
+	osg::Vec3d _eye;
+	// 视线中心
+	osg::Vec3d _center;
+	// 旋转参数
+	osg::Quat  _rotation;
 
 	osgViewer::Viewer* _Viewer;
 	osg::EllipsoidModel _ellipsoid;

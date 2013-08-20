@@ -2,7 +2,7 @@
 #include "SouthManipulator.h"
 
 
-SouthManipulator::SouthManipulator(void): m_fMoveSpeed(1.5f), m_bLeftButtonDown(false), m_fpushX(0), m_fpushY(0), m_fAngle(2.5), m_bCollisionDetection(false)
+SouthManipulator::SouthManipulator(void): m_fMoveSpeed(100.0f), m_bLeftButtonDown(false), m_fpushX(0), m_fpushY(0), m_fAngle(2.5), m_bCollisionDetection(false)
 {
 	m_vPosition = osg::Vec3(0.0f, 0.0f, 5.0f);
 	m_vRotation = osg::Vec3(osg::PI_2, 0.0f, 0.0f);
