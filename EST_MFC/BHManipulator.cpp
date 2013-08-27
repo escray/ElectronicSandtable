@@ -24,6 +24,16 @@ BHManipulator::~BHManipulator(void)
 
 void BHManipulator::home(const GUIEventAdapter& ,GUIActionAdapter& us)
 {
+
+	//_ellipsoid.setRadiusEquator(6378137);
+	//_ellipsoid.setRadiusPolar(6378137);
+
+	//setAutoComputeHomePosition(false);
+
+	//_vNe.set(-999,-999,-999.0);
+
+	//_blSaved=false;
+
 	resetPosition();
 }
 
@@ -186,7 +196,7 @@ bool BHManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
 			}
 
 			//-3»Ö¸´²ÎÊý
-			if (ea.getKey()=='G')
+			if (ea.getKey()=='G' || ea.getKey()=='g')
 			{
 				if(!_blSaved)return false;
 

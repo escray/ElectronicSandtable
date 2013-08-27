@@ -4,6 +4,14 @@
 
 ESTManipulator::ESTManipulator(void)
 {
+	m_ellipsoid.setRadiusEquator(6378137);
+	m_ellipsoid.setRadiusPolar(6378137);
+
+	setAutoComputeHomePosition(false);
+
+	m_vNe.set(-999.0, -999.0, -999.0);
+
+	m_blSaved = false;
 }
 
 
@@ -11,32 +19,245 @@ ESTManipulator::~ESTManipulator(void)
 {
 }
 
+// 设置观察参数，参数由矩阵确定，唯一确定视点位置和旋转参数
 void ESTManipulator::setByMatrix( const osg::Matrixd& matrix )
 {
-	throw std::exception("The method or operation is not implemented.");
+	osg::Vec3d lookVector(-matrix(2, 0), -matrix(2, 1), -matrix(2, 2));
+	osg::Vec3d eye(matrix(3, 0), matrix(3, 1), matrix(3, 3));
+
+	m_eye = eye;
+    m_rotation = matrix.getRotate().inverse();
 }
 
 void ESTManipulator::setByInverseMatrix( const osg::Matrixd& matrix )
 {
-	throw std::exception("The method or operation is not implemented.");
+	// tricky
+	setByMatrix(osg::Matrixd::inverse(matrix));
 }
 
+// 观察视图矩阵，由试点位置、旋转参数确定
 osg::Matrixd ESTManipulator::getMatrix() const
 {
-	throw std::exception("The method or operation is not implemented.");
+	return osg::Matrixd::rotate(m_rotation)*osg::Matrixd::translate(m_eye);
 }
 
 osg::Matrixd ESTManipulator::getInverseMatrix() const
 {
-	throw std::exception("The method or operation is not implemented.");
+	return osg::Matrixd::translate(-m_eye)*osg::Matrixd::rotate(m_rotation.inverse());
 }
 
 void ESTManipulator::setNode( osg::Node* )
 {
-	throw std::exception("The method or operation is not implemented.");
+	//TODO: m_node = node;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// r 环视
+// w 前进 
+// s 后退
+// a 左
+// d 右
+// + 加速
+// - 减速
+// 视点上升
+// 视点下降
+// 鼠标拖转
+// 滚轮
+//////////////////////////////////////////////////////////////////////////
 bool ESTManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us )
 {
-	throw std::exception("The method or operation is not implemented.");
+	switch(ea.getEventType())
+	{
+	case(osgGA::GUIEventAdapter::KEYDOWN):
+		// 环视
+		if (ea.getKey() == 'R' || ea.getKey() == 'r')
+		{
+			if(m_blSaved)
+			{
+				return false;
+			}
+			double a0;
+			m_a0 += 1.0;
+			a0 = 1.0;
+
+			osg::Vec3d axis(m_center.x(), m_center.y(), m_center.z());
+			axis.normalize();
+
+			osg::Matrixd matrix = osg::Matrixd::translate(-m_center) * osg::Matrixd::rotate(-a0 * osg::PI/180.0, axis) * osg::Matrixd::translate(m_center);
+			m_eye = m_eye*matrix;
+
+			//  [8/27/2013 zhaorui]
+			// TODO: matrix2 可以使用 matrix 替换
+			osg::Matrixd matrix2 = osg::Matrixd::translate(-m_center) * osg::Matrixd::rotate(-a0 * osg::PI/180.0, axis) * osg::Matrixd::translate(m_center);
+			osg::Vec3d vn = m_vNe * matrix2;
+			setLookAtByXyz(m_eye, m_center, vn);
+
+			us.requestRedraw();
+			us.requestContinuousUpdate(false);
+			return false;
+		}
+		// 围绕观察点，降低观察高度
+		if (ea.getKey() == 'D' || ea.getKey() == 'd')
+		{
+			double x, y, z, b, l, h;
+			m_ellipsoid.convertXYZToLatLongHeight(m_eye.x(), m_eye.y(), m_eye.z(), b, l, h);
+			h -= h*0.1;
+			m_ellipsoid.convertLatLongHeightToXYZ(b, l, h, x, y, z);
+			m_eye.set(x, y, z);
+			
+			// 加旋转
+			//osg::Vec3d axis(m_center.x(), m_center.y(), m_center.z());
+			//osg::Matrix matrix = osg::Matrixd::translate(-m_center) * osg::Matrixd::rotate(-m_a0*osg::PI/180.0, axis) * osg::Matrixd::translate(m_center);
+			//osg::Vec3d vn = m_vNe * matrix;
+			//setLookAtByXyz(m_eye, m_center, vn);
+
+			us.requestRedraw();
+			us.requestContinuousUpdate(false);
+
+			return false;
+		}
+		if (ea.getKey() == 'I' || ea.getKey() == 'i')
+		{
+
+		}
+
+
+
+	default:
+		return false;
+	}
+	return true;
+}
+
+void ESTManipulator::home( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa )
+{
+	resetPosition();
+}
+
+void ESTManipulator::setLookAtByXyz( const osg::Vec3d eye, const osg::Vec3d center, const osg::Vec3d up )
+{
+	m_eye = eye;
+	osg::Matrixd matrix;
+	matrix.makeLookAt(eye, center , up);
+	m_rotation = matrix.getRotate().inverse();
+}
+
+void ESTManipulator::setLookAtByBlh( osg::Vec3d eyeBlh, osg::Vec3d centerBlh, osg::Vec3d up )
+{
+	osg::Vec3d eyeXYZ;
+	osg::Vec3d centerXYZ;
+	double rb = osg::DegreesToRadians(eyeBlh.x());
+	double rl = osg::DegreesToRadians(eyeBlh.y());
+	double h = eyeBlh.z();
+
+	m_ellipsoid.convertLatLongHeightToXYZ(rb, rl, 0, centerXYZ.x(), centerXYZ.y(), centerXYZ.z());
+
+	m_eye = eyeXYZ;
+
+	osg::Vec3d lookAt = centerXYZ - eyeXYZ;
+	lookAt.normalize();
+	osg::Vec3d vNe = up;
+	osg::Vec3d vLe;
+	osg::Vec3d vUpe;
+	osg::Vec3d center = m_eye + lookAt;
+
+	// why?
+	if(up.length() > 9.0)
+	{
+		getLocalCoordFrame(center, 0, vNe, vLe, vUpe);
+	}
+
+	vNe.normalize();
+
+	setLookAtByXyz(m_eye, center, vNe);
+
+	if (m_vNe.length() > 9.0)
+	{
+		m_vNe = vNe;
+	}
+}
+
+// ground location's directionN, directionE, directionUp
+void ESTManipulator::getLocalCoordFrame( osg::Vec3d center, double azimuth, osg::Vec3d& vN, osg::Vec3d& vL, osg::Vec3d &vUp )
+{
+	// 1. degree azimuth to radian
+	azimuth = osg::DegreesToRadians(azimuth);
+
+	// 2 location's xyz to blh
+	double b, l, h;
+	m_ellipsoid.convertXYZToLatLongHeight(center.x(), center.y(), center.z(), b, l, h);	
+
+	// 3. directions are get by increaing a small amount(2 second)
+	double xb, yb, zb, xe, ye, ze;
+	xb = center.x();
+	yb = center.y();
+	zb = center.z();
+
+	// 4. directionN: b->b+2sec
+	m_ellipsoid.convertLatLongHeightToXYZ(b+osg::DegreesToRadians(2.0/3600.0), l, h, xe, ye, ze);
+	vN.set(xe-xb, ye-yb, ze-zb);
+	vN /= vN.length();
+	
+	// 5. directionE: l->l+2sec
+	m_ellipsoid.convertLatLongHeightToXYZ(b, l+osg::DegreesToRadians(2.0/3600.0), h, xe, ye, ze);
+	vL.set(xe-xb, ye-yb, ze-zb);
+	vL /= vL.length();
+
+	// 6. directionUp: vl^vN
+	vUp = vL^vN;
+	vUp /= vUp.length();
+
+}
+
+// 操作器初始化复位
+void ESTManipulator::resetPosition()
+{
+	double r = m_ellipsoid.getRadiusEquator();
+
+	setLookAtByXyz(osg::Vec3d(38.914702, 116.391731, 150000.0), osg::Vec3d(39.914702, 116.391731, 0.0), osg::Vec3d(-999.0, -999.0, -999.0));
+
+	osg::Vec3d eye, center, up;
+	getLookAt(eye, center, up);
+	setHomePosition(eye, center, up);
+
+	m_a0 = 0.0;
+
+	double x, y, z;
+	m_ellipsoid.convertLatLongHeightToXYZ(39.914702*osg::PI/180.0, 116.391731*osg::PI/180.0, 0.0, x, y, z);
+	m_center.set(x, y, z);
+
+}
+
+void ESTManipulator::getLookAt( osg::Vec3d& eye, osg::Vec3d& center, osg::Vec3d& up )
+{
+	osg::Matrixd mt = getMatrix();
+	// 观察系，分别指向观察点
+	osg::Vec3d vx = osg::Vec3d(mt(2, 0), mt(2, 1), mt(2, 2));
+	osg::Vec3d vy = osg::Vec3d(mt(0, 0), mt(0, 1), mt(0, 2));
+	osg::Vec3d vz = osg::Vec3d(mt(1, 0), mt(1, 1), mt(1, 2));
+
+	eye = m_eye;
+	center = m_center;
+	up = vz;
+}
+
+// 求成像平面的up向量，依据屏幕坐标竖线方向
+void ESTManipulator::objectXYZToScreenXy( osg::Vec3d ptO, osg::Vec3d& ptS )
+{
+	osg::Matrix vpw = m_viewer->getCamera()->getViewMatrix() * m_viewer->getCamera()->getProjectionMatrix() * m_viewer->getCamera()->getViewport()->computeWindowMatrix();
+
+	ptS = ptO * vpw;
+}
+
+void ESTManipulator::screenXyToObjectXYZB( osg::Vec3d screenPt, osg::Vec3d &ptXYZ )
+{
+	osg::Vec3d screenPt0;
+	screenPt0.set(screenPt.x(), screenPt.y(), 0.5);
+	osg::Matrix vpw = m_viewer->getCamera()->getViewMatrix() * m_viewer->getCamera()->getProjectionMatrix() * m_viewer->getCamera()->getViewport()->computeWindowMatrix();
+
+	osg::Matrix inverseVPW;
+	inverseVPW.inverse(vpw);
+
+	ptXYZ = screenPt0 * inverseVPW;
 }
