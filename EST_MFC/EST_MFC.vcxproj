@@ -102,11 +102,14 @@
     <None Include="res\EST_MFC.ico" />
     <None Include="res\EST_MFC.rc2" />
     <None Include="res\EST_MFCDoc.ico" />
+    <None Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BHManipulator.h" />
+    <ClInclude Include="ESTCreateHUD.h" />
     <ClInclude Include="ESTCoreOSG.h" />
     <ClInclude Include="ESTManipulator.h" />
+    <ClInclude Include="ESTPickHandler.h" />
     <ClInclude Include="EST_MFC.h" />
     <ClInclude Include="EST_MFCDoc.h" />
     <ClInclude Include="EST_MFCView.h" />
@@ -119,7 +122,9 @@
   <ItemGroup>
     <ClCompile Include="BHManipulator.cpp" />
     <ClCompile Include="ESTCoreOSG.cpp" />
+    <ClCompile Include="ESTCreateHUD.cpp" />
     <ClCompile Include="ESTManipulator.cpp" />
+    <ClCompile Include="ESTPickHandler.cpp" />
     <ClCompile Include="EST_MFC.cpp" />
     <ClCompile Include="EST_MFCDoc.cpp" />
     <ClCompile Include="EST_MFCView.cpp" />

@@ -53,15 +53,19 @@ void ESTManipulator::setNode( osg::Node* )
 
 
 //////////////////////////////////////////////////////////////////////////
-// r 环视
+// f 环视
 // w 前进 
 // s 后退
 // a 左
 // d 右
 // + 加速
 // - 减速
-// 视点上升
-// 视点下降
+// e 视点上升
+// c 视点下降
+// z 保存参数
+// x 读取参数
+// r 升高正视高毒
+// v 降低正视高度
 // 鼠标拖转
 // 滚轮
 //////////////////////////////////////////////////////////////////////////
@@ -71,12 +75,8 @@ bool ESTManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 	{
 	case(osgGA::GUIEventAdapter::KEYDOWN):
 		// 环视
-		if (ea.getKey() == 'R' || ea.getKey() == 'r')
+		if (ea.getKey() == 'F' || ea.getKey() == 'f')
 		{
-			if(m_blSaved)
-			{
-				return false;
-			}
 			double a0;
 			m_a0 += 1.0;
 			a0 = 1.0;
@@ -89,7 +89,7 @@ bool ESTManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 
 			//  [8/27/2013 zhaorui]
 			// TODO: matrix2 可以使用 matrix 替换
-			osg::Matrixd matrix2 = osg::Matrixd::translate(-m_center) * osg::Matrixd::rotate(-a0 * osg::PI/180.0, axis) * osg::Matrixd::translate(m_center);
+			osg::Matrixd matrix2 = osg::Matrixd::translate(-m_center) * osg::Matrixd::rotate(-m_a0 * osg::PI/180.0, axis) * osg::Matrixd::translate(m_center);
 			osg::Vec3d vn = m_vNe * matrix2;
 			setLookAtByXyz(m_eye, m_center, vn);
 
@@ -98,7 +98,7 @@ bool ESTManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 			return false;
 		}
 		// 围绕观察点，降低观察高度
-		if (ea.getKey() == 'D' || ea.getKey() == 'd')
+		if (ea.getKey() == 'C' || ea.getKey() == 'c')
 		{
 			double x, y, z, b, l, h;
 			m_ellipsoid.convertXYZToLatLongHeight(m_eye.x(), m_eye.y(), m_eye.z(), b, l, h);
@@ -117,12 +117,120 @@ bool ESTManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 
 			return false;
 		}
-		if (ea.getKey() == 'I' || ea.getKey() == 'i')
+		// 围绕观察点升高，可以旋转
+		if (ea.getKey() == 'E' || ea.getKey() == 'e')
 		{
+			double x, y, z, b, l, h;
+			m_ellipsoid.convertXYZToLatLongHeight(m_eye.x(), m_eye.y(), m_eye.z(), b, l, h);
+			h += h*0.1;
+			m_ellipsoid.convertLatLongHeightToXYZ(b, l, h, x, y, z);
+			m_eye.set(x, y, z);
 
+			osg::Vec3d axis(m_center.x(), m_center.y(), m_center.z());
+			axis.normalize();
+
+			osg::Matrixd matrix = osg::Matrixd::translate(-m_center)*osg::Matrixd::rotate(-m_a0*osg::PI/180.0, axis)*osg::Matrixd::translate(m_center);
+			osg::Vec3d vn = m_vNe * matrix;
+
+			setLookAtByXyz(m_eye, m_center, vn);
+			
+			us.requestRedraw();
+			us.requestContinuousUpdate(false);
+
+			return false;
 		}
+		// 保存参数
+		// 保存围绕观察点旋转模式的数据，以便恢复
+		if (ea.getKey() == 'Z' || ea.getKey() == 'z')
+		{
+			if (m_blSaved)
+			{
+				return false;
+			}
+			SaveParam();
 
+			return false;
+		}
+		// 读取参数
+		if (ea.getKey() == 'X' || ea.getKey() == 'x')
+		{
+			if(!m_blSaved)
+			{
+				return false;
+			}
 
+			LoadParam();
+
+			return false;
+		}
+		// 降低正视高度
+		if (ea.getKey() == 'V' || ea.getKey() == 'v')
+		{
+			if (!m_blSaved)
+			{
+				SaveParam();
+			}
+
+			double x, y, z, b, l, h, he;
+			m_ellipsoid.convertXYZToLatLongHeight(m_eye.x(), m_eye.y(), m_eye.z(), b, l, h);
+			he = h;
+
+			he -= h/100.0;
+
+			m_ellipsoid.convertXYZToLatLongHeight(m_center.x(), m_center.y(), m_center.z(), b, l, h);
+			m_ellipsoid.convertLatLongHeightToXYZ(b, l, he, x, y, z);
+
+			m_eye.set(x, y, z);
+
+			osg::Vec3d axis(m_center.x(), m_center.y(), m_center.z());
+			axis.normalize();
+
+			osg::Matrixd matrix = osg::Matrixd::translate(-m_center) * osg::Matrixd::rotate( -m_a0 * osg::PI/180.0, axis) * osg::Matrixd::translate(m_center);
+			osg::Vec3d vn = m_vNe * matrix;
+
+			setLookAtByXyz(m_eye, m_center, vn);
+
+			us.requestRedraw();
+			us.requestContinuousUpdate();
+
+			return false;
+		}
+		// 升高正视高度
+		if (ea.getKey() == 'R')
+		{
+			if (!m_blSaved)
+			{
+				SaveParam();
+			}
+
+			double x, y, z, b, l, h, hEye;
+			m_ellipsoid.convertXYZToLatLongHeight(m_eye.x(), m_eye.y(), m_eye.z(), b, l, h);
+			hEye = h;
+			hEye += h/100.0;
+
+			m_ellipsoid.convertXYZToLatLongHeight(m_center.x(), m_center.y(), m_center.z(), b, l, h);
+			m_ellipsoid.convertLatLongHeightToXYZ(b, l, hEye, x, y, z);
+
+			m_eye.set(x, y, z);
+
+			osg::Vec3d axis(m_center.x(), m_center.y(), m_center.z());
+			axis.normalize();
+
+			osg::Matrixd matrix = osg::Matrixd::translate(-m_center) * osg::Matrixd::rotate(-m_a0*osg::PI/180.0, axis) * osg::Matrixd::translate(m_center);
+			osg::Vec3d vn = m_vNe * matrix;
+
+			setLookAtByXyz(m_eye, m_center, vn);
+
+			us.requestRedraw();
+			us.requestContinuousUpdate(false);
+
+			return false;
+		}
+		if (ea.getKey() == 0x20)
+		{
+			home(ea, us);
+			return false;
+		}
 
 	default:
 		return false;
@@ -151,9 +259,12 @@ void ESTManipulator::setLookAtByBlh( osg::Vec3d eyeBlh, osg::Vec3d centerBlh, os
 	double rl = osg::DegreesToRadians(eyeBlh.y());
 	double h = eyeBlh.z();
 
-	m_ellipsoid.convertLatLongHeightToXYZ(rb, rl, 0, centerXYZ.x(), centerXYZ.y(), centerXYZ.z());
-
+	m_ellipsoid.convertLatLongHeightToXYZ(rb, rl, h, eyeXYZ.x(), eyeXYZ.y(), eyeXYZ.z());
 	m_eye = eyeXYZ;
+
+	rb = osg::DegreesToRadians(centerBlh.x());
+	rl = osg::DegreesToRadians(centerBlh.y());
+	m_ellipsoid.convertLatLongHeightToXYZ(rb, rl, 0, centerXYZ.x(), centerXYZ.y(), centerXYZ.z());
 
 	osg::Vec3d lookAt = centerXYZ - eyeXYZ;
 	lookAt.normalize();
@@ -163,7 +274,7 @@ void ESTManipulator::setLookAtByBlh( osg::Vec3d eyeBlh, osg::Vec3d centerBlh, os
 	osg::Vec3d center = m_eye + lookAt;
 
 	// why?
-	if(up.length() > 9.0)
+	if(up.length() >= 9.0)
 	{
 		getLocalCoordFrame(center, 0, vNe, vLe, vUpe);
 	}
@@ -215,7 +326,7 @@ void ESTManipulator::resetPosition()
 {
 	double r = m_ellipsoid.getRadiusEquator();
 
-	setLookAtByXyz(osg::Vec3d(38.914702, 116.391731, 150000.0), osg::Vec3d(39.914702, 116.391731, 0.0), osg::Vec3d(-999.0, -999.0, -999.0));
+	setLookAtByBlh(osg::Vec3d(38.914702, 116.391731, 15000.0), osg::Vec3d(39.914702, 116.391731, 0.0), osg::Vec3d(-999.0, -999.0, -999.0));
 
 	osg::Vec3d eye, center, up;
 	getLookAt(eye, center, up);
@@ -260,4 +371,25 @@ void ESTManipulator::screenXyToObjectXYZB( osg::Vec3d screenPt, osg::Vec3d &ptXY
 	inverseVPW.inverse(vpw);
 
 	ptXYZ = screenPt0 * inverseVPW;
+}
+
+void ESTManipulator::SaveParam()
+{
+	m_eyeSaved = m_eye;
+	m_rotationSaved = m_rotation;
+
+	m_blSaved = true;
+}
+
+void ESTManipulator::LoadParam()
+{
+	m_eye = m_eyeSaved;
+	m_rotation = m_rotationSaved;
+
+	m_blSaved = false;
+}
+
+osg::Vec3d ESTManipulator::getCenter()
+{
+	return m_center;
 }

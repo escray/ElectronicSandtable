@@ -47,6 +47,12 @@ public:
 	void objectXYZToScreenXy(osg::Vec3d ptO, osg::Vec3d& ptS);
 	void screenXyToObjectXYZB(osg::Vec3d screenPt, osg::Vec3d &ptXYZ);
 
+	void LoadParam();
+
+	void SaveParam();
+
+	osg::Vec3d getCenter();
+
 
 	// NO USED
 	//////////////////////////////////////////////////////////////////////////

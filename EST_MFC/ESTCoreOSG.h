@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+#include <osg/CameraNode>
+
 #include <osgDB/DatabasePager>
 #include <osgDB/Registry>
 #include <osgDB/ReadFile>
@@ -11,6 +13,8 @@
 #include <osgGA/FirstPersonManipulator>
 #include <osgGA/KeySwitchMatrixManipulator>
 
+#include <osgText/Text>
+
 #include <osgUtil/Optimizer>
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
@@ -19,6 +23,8 @@
 #include "ESTManipulator.h"
 #include "SouthManipulator.h"
 #include "BHManipulator.h"
+#include "ESTCreateHUD.h"
+#include "ESTPickHandler.h"
 
 // OSG 核心类，在这里执行 MFC 对 OSG 的管理功能
 class ESTCoreOSG
@@ -61,7 +67,7 @@ public:
 	// osg::Node* CreateLight(osg::StateSet* rootStateSet);
 
 	void OptimizeModel();
-
+	//osg::Node* createHUD( void );
 private:
 
 	bool m_done;
@@ -74,7 +80,7 @@ private:
 	osg::ref_ptr<osgGA::KeySwitchMatrixManipulator> keyswitchManipulator;
 	osg::ref_ptr<osgGA::CameraManipulator> cameraManipulator;
 
-	ESTManipulator* estManipulator;
+	osg::ref_ptr<ESTManipulator> estManipulator;
 	osg::ref_ptr<BHManipulator> bhManipulator;
 	SouthManipulator* southManipulator;
 

@@ -39,9 +39,9 @@ void ESTCoreOSG::InitManipulators( void )
 	keyswitchManipulator->addMatrixManipulator('5', "FirstPerson", new osgGA::FirstPersonManipulator());
 	keyswitchManipulator->addMatrixManipulator('6', "SouthManiputlator", southManipulator);
 	keyswitchManipulator->addMatrixManipulator('7', "BHManipulator", bhManipulator.get());	
-	//keyswitchManipulator->addMatrixManipulator('8', "ESTManipulator", estManipulator);
+	keyswitchManipulator->addMatrixManipulator('8', "ESTManipulator", estManipulator.get());
 
-	keyswitchManipulator->selectMatrixManipulator(6);
+	keyswitchManipulator->selectMatrixManipulator(7);
 }
 
 void ESTCoreOSG::InitSceneGraph( void )
@@ -96,12 +96,29 @@ void ESTCoreOSG::InitCameraConfig( void )
 	//bhManipulator->setViewer(m_viewer);
 	//m_viewer->setCameraManipulator(bhManipulator.get());
 
+	ESTCreateHUD hud;
+	osgText::Text* updateText = new osgText::Text;
 
+	m_viewer->addEventHandler(new ESTPickHandler(updateText));
+
+	m_root->addChild(hud.createTitleHUD());
+	m_root->addChild(hud.createPositionHUD(updateText));
+
+	//  [8/28/2013 zhaorui]
+	// 如果是其他的 manipulator 如何处理？
+	//osg::Vec3d center;
+	//if(m_viewer->getCameraManipulator().getName() == "ESTManipulator")
+	//{
+	//	center = estManipulator->getCenter();
+	//	m_root->addChild(hud.createPositionHUD(updateText, center));
+	//}	
+	//else
+	//{
+	//m_root->addChild(hud.createPositionHUD(updateText);
+	//	}
 
 	m_viewer->setSceneData(m_root.get());
 	m_viewer->realize();
-	
-
 }
 
 void ESTCoreOSG::Render( void* ptr )
