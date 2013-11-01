@@ -2,14 +2,12 @@
 #include "ESTCoreOSG.h"
 
 
-
 ESTCoreOSG::ESTCoreOSG(HWND hWnd) : m_hWnd(hWnd)
 {
 	estManipulator = new ESTManipulator;
 	bhManipulator = new BHManipulator;
 	southManipulator = new SouthManipulator;
 }
-
 
 ESTCoreOSG::~ESTCoreOSG(void)
 {
@@ -95,6 +93,33 @@ void ESTCoreOSG::InitCameraConfig( void )
 	//m_viewer->setCamera(camera.get());
 	//bhManipulator->setViewer(m_viewer);
 	//m_viewer->setCameraManipulator(bhManipulator.get());
+
+	// plane ?
+	osg::ref_ptr<osg::Node> model = osgDB::readNodeFile("plane.ive");
+
+	osg::ref_ptr<osg::MatrixTransform> mat = new osg::MatrixTransform;
+
+	mat->addChild(model);
+
+	m_root->addChild(mat);
+
+	double x, y, z;
+	osg::EllipsoidModel elm;
+	elm.setRadiusEquator(6378137);
+	elm.setRadiusPolar(6378137);
+
+	elm.convertLatLongHeightToXYZ( 39.5*osg::PI/180.0, 116.3*osg::PI/180.0, 5000, x, y, z );
+	// TODO: 在这里做一个断点，读出 x, y, z 的值；后面考虑采用数值代替经纬度
+
+	double x1, y1, z1;
+	elm.convertLatLongHeightToXYZ( (39.5+1.0/3600.0)*osg::PI/180, 116.3*osg::PI/180.0, 5000, x1, y1, z1 );
+	osg::Vec3d v1 = osg::Vec3d( x1, y1, z1 ) - osg::Vec3d( x, y, z );
+	// 飞机轴线位置
+	osg::Vec3d v0 = osg::Vec3d( -8.4, 32.3-4898.6, 476.4-550.4 );
+	mat->setMatrix( osg::Matrix::rotate(v0, v1) * osg::Matrix::translate(x, y, z) );
+
+
+
 
 	ESTCreateHUD hud;
 	osgText::Text* updateText = new osgText::Text;
