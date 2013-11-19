@@ -86,8 +86,8 @@ void CEST_MFCView::OnInitialUpdate()
 {
 	CView::OnInitialUpdate();
 	
-	CString csFileName = GetDocument()->GetFileName();
-	//CString csFileName = "E:\\sourcecode\\bhdata-soft\\BH\\bh_11.ive";
+	//CString csFileName = GetDocument()->GetFileName();
+	CString csFileName = "E:\\sourcecode\\ElectronicSandtable\\EST_MFC\\data\\plane.ive";
 
 	if (m_filenum == 1)
 	{

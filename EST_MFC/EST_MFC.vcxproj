@@ -111,6 +111,7 @@
     <ClInclude Include="ESTCoreOSG.h" />
     <ClInclude Include="ESTManipulator.h" />
     <ClInclude Include="ESTPickHandler.h" />
+    <ClInclude Include="ESTThread.h" />
     <ClInclude Include="EST_MFC.h" />
     <ClInclude Include="EST_MFCDoc.h" />
     <ClInclude Include="EST_MFCView.h" />
@@ -128,6 +129,7 @@
     <ClCompile Include="ESTCreateHUD.cpp" />
     <ClCompile Include="ESTManipulator.cpp" />
     <ClCompile Include="ESTPickHandler.cpp" />
+    <ClCompile Include="ESTThread.cpp" />
     <ClCompile Include="EST_MFC.cpp" />
     <ClCompile Include="EST_MFCDoc.cpp" />
     <ClCompile Include="EST_MFCView.cpp" />

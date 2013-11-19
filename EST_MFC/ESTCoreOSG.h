@@ -25,9 +25,10 @@
 #include "BHManipulator.h"
 #include "ESTCreateHUD.h"
 #include "ESTPickHandler.h"
+//#include "ESTThread.h"
 
 // OSG 核心类，在这里执行 MFC 对 OSG 的管理功能
-class ESTCoreOSG
+class ESTCoreOSG //: public ESTThread
 {
 public:
 	// 构造函数，获取上一级窗口句柄
@@ -71,6 +72,13 @@ public:
 	//osg::Node* createHUD( void );	
 
 	osg::Geometry* createRibbonNode( void );
+
+	//void Update( void );
+
+	//virtual void run();	
+
+	//void cancelThreads();
+
 private:
 
 	bool m_done;

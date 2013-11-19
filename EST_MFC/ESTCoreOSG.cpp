@@ -104,14 +104,14 @@ void ESTCoreOSG::InitCameraConfig( void )
 	m_viewer->setCameraManipulator( bhManipulator.get() );
 
 
-	//m_viewer->setCameraManipulator(keyswitchManipulator.get());
-	
+	//m_viewer->setCameraManipulator(keyswitchManipulator.get());	
 	//m_viewer->setCameraManipulator(trackball.get());
 	//m_viewer->setCamera(camera.get());
 	//bhManipulator->setViewer(m_viewer);
 	//m_viewer->setCameraManipulator(bhManipulator.get());
 
-	// first plane ?
+	
+	// 需要改用相对路径
 	osg::ref_ptr<osg::Node> model = osgDB::readNodeFile("E:\\sourcecode\\ElectronicSandtable\\EST_MFC\\data\\plane.ive");
 
 	if (!model)
@@ -119,10 +119,9 @@ void ESTCoreOSG::InitCameraConfig( void )
 		return;
 	}
 
+	// first plane ?
 	osg::ref_ptr<osg::MatrixTransform> mat = new osg::MatrixTransform;
-
 	mat->addChild(model);
-
 	m_root->addChild(mat);
 
 	double x, y, z;
@@ -167,10 +166,10 @@ void ESTCoreOSG::InitCameraConfig( void )
 	planeCb1->setA( osg::PI );
 	mat->setUpdateCallback(planeCb1);
 
-	ribbonCb1->setPos( vPos );
-	ribbonCb1->setNp( true );
-	ribbonCb1->setA( osg::PI );
-	ribbonCb1->setEmp( bhManipulator );
+	//ribbonCb1->setPos( vPos );
+	//ribbonCb1->setNp( true );
+	//ribbonCb1->setA( osg::PI );
+	//ribbonCb1->setEmp( bhManipulator );
 	
 	//osg::ref_ptr<osg::Geometry> gm = createRibbonNode();
 	//osg::ref_ptr<osg::Geode> ge = new osg::Geode;
@@ -179,9 +178,6 @@ void ESTCoreOSG::InitCameraConfig( void )
 	//gm->setDataVariance( osg::Object::DYNAMIC );
 
 	//m_root->addChild( ge.get() );
-
-
-
 
 	ESTCreateHUD hud;
 	osgText::Text* updateText = new osgText::Text;
@@ -204,8 +200,10 @@ void ESTCoreOSG::InitCameraConfig( void )
 
 	m_viewer->setSceneData(m_root.get());
 	m_viewer->getCamera()->setCullingMode(m_viewer->getCamera()->getCullingMode() & ~osg::CullStack::SMALL_FEATURE_CULLING );
-	m_viewer->realize();
+	//m_viewer->realize();
 }
+
+
 
 void ESTCoreOSG::Render( void* ptr )
 {
@@ -214,16 +212,52 @@ void ESTCoreOSG::Render( void* ptr )
 
 	while (!viewer->done())
 	{
+		long k = viewer->getFrameStamp()->getFrameNumber();
+		if ( k % 10 == 0)
+		{
+			planeCb1->setUpdate(true);
+			ribbonCb1->setUpdate(true);
+		}
 		osg->PreFrameUpdate();
 		viewer->frame();
 		osg->PostFrameUpdate();
 		Sleep(10);
 	}
 
-	AfxMessageBox("程序退出");
 	_endthread();
 
 }
+
+//void ESTCoreOSG::run()
+//{
+//	m_viewer->realize();
+//
+//	while ( !m_viewer->done() )
+//	{
+//		long k = m_viewer->getFrameStamp()->getFrameNumber();
+//		// 每10秒钟更新一次位置
+//		if ( k % 10 == 0 )
+//		{
+//			Update();
+//		}
+//
+//		m_viewer->frame();
+//	}
+//}
+//
+//void ESTCoreOSG::Update( void )
+//{
+//	planeCb1->setUpdate(true);
+//	ribbonCb1->setUpdate(true);
+//}
+
+
+//void ESTCoreOSG::cancelThreads()
+//{
+//	cancel();
+//	m_viewer->setDone(true);
+//	m_viewer->stopThreading();
+//}
 
 void ESTCoreOSG::ReplaceSceneData( std::string filename )
 {
@@ -262,3 +296,6 @@ osg::Geometry* ESTCoreOSG::createRibbonNode()
 
 	return gm.get();
 }
+
+
+
