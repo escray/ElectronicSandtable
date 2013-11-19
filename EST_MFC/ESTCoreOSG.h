@@ -2,6 +2,9 @@
 #include <string>
 
 #include <osg/CameraNode>
+#include <osg/BlendFunc>
+#include <osg/LineWidth>
+
 
 #include <osgDB/DatabasePager>
 #include <osgDB/Registry>

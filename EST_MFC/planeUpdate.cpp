@@ -46,7 +46,7 @@ void planeUpdate::operator()( osg::Node* node, osg::NodeVisitor* nv )
 
 	_updatePos = false;
 	_posIndex++;
-	_posIndex = _vPos.size();
+	_posIndex %= _vPos.size();
 }
 
 void planeUpdate::setUpdate( bool bl )

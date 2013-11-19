@@ -87,7 +87,7 @@ void CEST_MFCView::OnInitialUpdate()
 	CView::OnInitialUpdate();
 	
 	//CString csFileName = GetDocument()->GetFileName();
-	CString csFileName = "E:\\sourcecode\\ElectronicSandtable\\EST_MFC\\data\\plane.ive";
+	CString csFileName = "E:\\sourcecode\\ElectronicSandtable\\EST_MFC\\data\\bh_11.ive";
 
 	if (m_filenum == 1)
 	{
@@ -129,8 +129,5 @@ void CEST_MFCView::OnDestroy()
 	}
 	CView::OnDestroy();
 }
-
-
-
 
 // CEST_MFCView message handlers

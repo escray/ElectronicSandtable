@@ -166,18 +166,19 @@ void ESTCoreOSG::InitCameraConfig( void )
 	planeCb1->setA( osg::PI );
 	mat->setUpdateCallback(planeCb1);
 
-	//ribbonCb1->setPos( vPos );
-	//ribbonCb1->setNp( true );
-	//ribbonCb1->setA( osg::PI );
-	//ribbonCb1->setEmp( bhManipulator );
+	ribbonCb1->setPos( vPos );
+	ribbonCb1->setNp( true );
+	ribbonCb1->setA( osg::PI );
+	ribbonCb1->setEmp( bhManipulator );
 	
-	//osg::ref_ptr<osg::Geometry> gm = createRibbonNode();
-	//osg::ref_ptr<osg::Geode> ge = new osg::Geode;
-	//ge->addDrawable( gm.get() );
-	//gm->setUpdateCallback( ribbonCb1 );
-	//gm->setDataVariance( osg::Object::DYNAMIC );
+	osg::ref_ptr<osg::Geode> ge = new osg::Geode();
+	osg::ref_ptr<osg::Geometry> gm = createRibbonNode();
+	
+	ge->addDrawable( gm.get() );
+	gm->setUpdateCallback( ribbonCb1 );
+	gm->setDataVariance( osg::Object::DYNAMIC );
 
-	//m_root->addChild( ge.get() );
+	m_root->addChild( ge.get() );
 
 	ESTCreateHUD hud;
 	osgText::Text* updateText = new osgText::Text;
@@ -292,10 +293,38 @@ osg::Geometry* ESTCoreOSG::createRibbonNode()
 {
 	osg::ref_ptr<osg::Geometry> gm = new osg::Geometry();
 
+	osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array();
+	vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+	vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+	gm->setVertexArray(vertices.get());
 
+	// 飘带颜色	
+	osg::ref_ptr<osg::Vec4Array> color = new osg::Vec4Array;
+	color->push_back( osg::Vec4( 0.8, 0.8, 0.0, 0.5 ) );
 
-	return gm.get();
-}
+	gm->setColorArray( color.get() );
+	gm->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+	osg::ref_ptr<osg::DrawArrays> tileNode = new osg::DrawArrays( osg::DrawArrays::LINE_STRIP, 0, vertices->size() );
+	gm->addPrimitiveSet( tileNode.get() );
+	gm->setUseDisplayList( false );
+	gm->setUseVertexBufferObjects( true );
+
+	gm->getOrCreateStateSet()->setAttributeAndModes( new osg::BlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ), osg::StateAttribute::ON );
+	gm->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+	
+	// 飘带宽度
+	osg::ref_ptr<osg::LineWidth> width = new osg::LineWidth;
+	width->setWidth( 4 );
+	gm->getOrCreateStateSet()->setAttribute( width );
+
+	gm->setDataVariance( osg::Object::DYNAMIC );
+	gm->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+	// gm->getOrCreateStateSet()->setMode( GL_COLOR_MATERIAL, osg::StateAttribute::OFF );
+	gm->getOrCreateStateSet()->setRenderBinDetails( 999, "RenderBin" );
+	gm->getOrCreateStateSet()->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE );
+	
+	return gm.release();}
 
 
 
