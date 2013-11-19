@@ -9,34 +9,26 @@ public:
 	planeUpdate(void);
 	~planeUpdate(void);
 
+	// 更新位置
 	virtual void operator() ( osg::Node* node, osg::NodeVisitor* nv );
 
+	// 设置是否更新
 	void setUpdate( bool bl );
 
-	void setPos( std::vector<osg::Vec3d> vPos )
-	{
-		_vPos = vPos;
-	}
+	// 设置位置
+	void setPos( std::vector<osg::Vec3d> vPos );
 
-	void setAxis( osg::Vec3d axis )
-	{
-		_axis = axis;
-	}
+	// 设置轴向
+	void setAxis( osg::Vec3d axis );
 
-	void setDir( std::vector<osg::Vec3d> vDir )
-	{
-		_vDir = vDir;
-	}
+	// 设置方向
+	void setDir( std::vector<osg::Vec3d> vDir );
 
-	void setScale( double scale )
-	{
-		_scale = scale;
-	}
+	// 设置放大缩小比例
+	void setScale( double scale );
 
-	void setA( double a )
-	{
-		_a = a;
-	}
+	// 设置角度
+	void setA( double a );
 
 private:
 	// 是否移动更新飞机位置

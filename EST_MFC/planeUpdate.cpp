@@ -53,3 +53,28 @@ void planeUpdate::setUpdate( bool bl )
 {
 	_updatePos = bl;
 }
+
+void planeUpdate::setPos( std::vector<osg::Vec3d> vPos )
+{
+	_vPos = vPos;
+}
+
+void planeUpdate::setAxis( osg::Vec3d axis )
+{
+	_axis = axis;
+}
+
+void planeUpdate::setDir( std::vector<osg::Vec3d> vDir )
+{
+	_vDir = vDir;
+}
+
+void planeUpdate::setScale( double scale )
+{
+	_scale = scale;
+}
+
+void planeUpdate::setA( double a )
+{
+	_a = a;
+}

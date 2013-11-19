@@ -67,7 +67,10 @@ public:
 	// osg::Node* CreateLight(osg::StateSet* rootStateSet);
 
 	void OptimizeModel();
-	//osg::Node* createHUD( void );
+	
+	//osg::Node* createHUD( void );	
+
+	osg::Geometry* createRibbonNode( void );
 private:
 
 	bool m_done;
@@ -84,6 +87,8 @@ private:
 	osg::ref_ptr<BHManipulator> bhManipulator;
 	SouthManipulator* southManipulator;
 
+	// 公用参数
+	// double RadianPerDegree = osg::PI/180;
 
 };
 
