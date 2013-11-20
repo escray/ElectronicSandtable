@@ -28,7 +28,7 @@ public:
 	void setScale( double scale );
 
 	// 设置角度
-	void setA( double a );
+	void setAngle( double a );
 
 private:
 	// 是否移动更新飞机位置
@@ -44,7 +44,7 @@ private:
 	// 缩放比例系数，用于夸张，使飞机可见
 	double _scale;
 	// ?
-	double _a;
+	double _angle;
 
 };
 

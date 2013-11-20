@@ -35,11 +35,12 @@ bool ESTPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 void ESTPickHandler::pick( osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea )
 {
 	osgUtil::LineSegmentIntersector::Intersections intersectons;
+	
 	std::string gdlist = "";
 	std::ostringstream os;
 	os<<"   Eye Position X: "<<(int)position[0]<<" Y: "<<(int)position[1]<<" Z: "<<(int)position[2] 
 	  <<"\nCenter Position X: "<<(int)center[0]<<" Y: "<<(int)center[1]<<" Z: "<<(int)center[2]
-	  <<"\n    Up Position X: "<<(int)up[0]<<" Y: "<<(int)up[2]<<" Z: "<<(int)up[2];
+	  <<"\n    Up Position X: "<<(double)up[0]<<" Y: "<<(double)up[2]<<" Z: "<<(double)up[2];
 	gdlist += os.str();
 	setLabel(gdlist);
 }

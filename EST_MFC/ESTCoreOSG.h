@@ -48,6 +48,12 @@ public:
 
 	void InitCameraConfig(void);
 
+	void CreateRobbin( std::vector<osg::Vec3d> vPos );
+
+	void CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Vec3d>& vPos );
+
+	void CreateHUD();
+
 	void SetupWindow(void);
 
 	void SetupCamera(void);
@@ -98,8 +104,11 @@ private:
 	osg::ref_ptr<BHManipulator> bhManipulator;
 	SouthManipulator* southManipulator;
 
+	// 用于坐标转换
+	osg::EllipsoidModel elm;
+
 	// 公用参数
-	// double RadianPerDegree = osg::PI/180;
+	double RadianPerDegree;
 
 };
 

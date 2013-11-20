@@ -34,6 +34,7 @@ osg::Node* ESTCreateHUD::createTitleHUD()
 	return camera;
 }
 
+// TODO: 视点位置正确，中心位置和Up位置不正确
 osg::Node* ESTCreateHUD::createPositionHUD( osgText::Text* updateText )
 {
 	osg::Camera* camera = initialCamera();

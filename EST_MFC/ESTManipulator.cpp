@@ -107,10 +107,10 @@ bool ESTManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 			m_eye.set(x, y, z);
 			
 			// 加旋转
-			//osg::Vec3d axis(m_center.x(), m_center.y(), m_center.z());
-			//osg::Matrix matrix = osg::Matrixd::translate(-m_center) * osg::Matrixd::rotate(-m_a0*osg::PI/180.0, axis) * osg::Matrixd::translate(m_center);
-			//osg::Vec3d vn = m_vNe * matrix;
-			//setLookAtByXyz(m_eye, m_center, vn);
+			osg::Vec3d axis(m_center.x(), m_center.y(), m_center.z());
+			osg::Matrix matrix = osg::Matrixd::translate(-m_center) * osg::Matrixd::rotate(-m_a0*osg::PI/180.0, axis) * osg::Matrixd::translate(m_center);
+			osg::Vec3d vn = m_vNe * matrix;
+			setLookAtByXyz(m_eye, m_center, vn);
 
 			us.requestRedraw();
 			us.requestContinuousUpdate(false);
@@ -196,7 +196,7 @@ bool ESTManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 			return false;
 		}
 		// 升高正视高度
-		if (ea.getKey() == 'R')
+		if (ea.getKey() == 'R' || ea.getKey() == 'r' )
 		{
 			if (!m_blSaved)
 			{

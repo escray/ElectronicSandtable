@@ -37,7 +37,8 @@ void planeUpdate::operator()( osg::Node* node, osg::NodeVisitor* nv )
 	elm.computeLocalToWorldTransformFromLatLongHeight( b, l, h, md );
 	// 夸张飞机
 	// 安置飞机，先夸张，再安置
-	md = osg::Matrixd::scale( 1.0, 1.0, 1.0 ) * md * osg::Matrixd::rotate( _a, n );
+	// TODO: 飞机根据视点位置放大缩小
+	md = osg::Matrixd::scale( 1.0, 1.0, 1.0 ) * md * osg::Matrixd::rotate( _angle, n );
 
 	mt->setMatrix( osg::Matrix::identity() );
 	mt->setMatrix( md );
@@ -74,7 +75,7 @@ void planeUpdate::setScale( double scale )
 	_scale = scale;
 }
 
-void planeUpdate::setA( double a )
+void planeUpdate::setAngle( double angle )
 {
-	_a = a;
+	_angle = angle;
 }
