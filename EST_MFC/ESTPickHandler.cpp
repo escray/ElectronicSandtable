@@ -3,9 +3,7 @@
 
 ESTPickHandler::ESTPickHandler( osgText::Text* updateText ) : m_updateText(updateText)
 {
-
 }
-
 
 ESTPickHandler::~ESTPickHandler(void)
 {
@@ -35,6 +33,8 @@ bool ESTPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 void ESTPickHandler::pick( osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea )
 {
 	osgUtil::LineSegmentIntersector::Intersections intersectons;
+
+
 	
 	std::string gdlist = "";
 	std::ostringstream os;

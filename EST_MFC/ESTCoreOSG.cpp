@@ -13,6 +13,9 @@ ESTCoreOSG::ESTCoreOSG(HWND hWnd) : m_hWnd(hWnd)
 	elm.setRadiusPolar(6378137);
 
 	RadianPerDegree = osg::PI/180;
+
+	// 飞机轴线位置，来自于飞机模型
+	planeAxis = osg::Vec3d( -8.4, 32.3-4898.6, 476.4-550.4 );
 }
 
 ESTCoreOSG::~ESTCoreOSG(void)
@@ -128,7 +131,12 @@ void ESTCoreOSG::InitCameraConfig( void )
 	// 与飘带共享
 	std::vector<osg::Vec3d> vPos;
 
-	CreatePlane(model, vPos);
+	osg::Vec3d vStart( 39.0*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
+	osg::Vec3d vStop( 41.5*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
+	// 飞机轴线，+或者-表示机头的朝向
+	osg::Vec3d vAxis( (39.0+1.0/3600)*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
+
+	CreatePlane(model, vPos, vStart, vStop, vAxis);
 
 
 	CreateRobbin(vPos);
@@ -286,20 +294,13 @@ void ESTCoreOSG::CreateHUD()
 	m_root->addChild(hud.createPositionHUD(updateText));
 }
 
-void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Vec3d>& vPos )
+void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Vec3d>& vPos, osg::Vec3d vStart, osg::Vec3d vStop, osg::Vec3d vAxis )
 {
+	std::vector<osg::Vec3d> vDir;
+
 	osg::ref_ptr<osg::MatrixTransform> mat = new osg::MatrixTransform;
 	mat->addChild(model);
 	m_root->addChild(mat);
-
-	
-
-	osg::Vec3d vStart( 39.0*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
-	osg::Vec3d vStop( 41.5*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
-	// 飞机轴线，+或者-表示机头的朝向
-	osg::Vec3d vAxis( (39.0+1.0/3600)*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
-	// 飞机轴线位置，来自于飞机模型
-	osg::Vec3d planeAxis = osg::Vec3d( -8.4, 32.3-4898.6, 476.4-550.4 );
 
 	// 起点
 	double x, y, z;
@@ -310,33 +311,17 @@ void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Ve
 	osg::Vec3d v1 = osg::Vec3d( x1, y1, z1 ) - osg::Vec3d( x, y, z );
 	
 	// 调整飞机的轴向和位置
-	mat->setMatrix( osg::Matrix::rotate(planeAxis, v1) * osg::Matrix::translate(x, y, z) );
-
-	planeCb1->setAxis( planeAxis );
-	std::vector<osg::Vec3d> vDir;
-	vDir.push_back( v1 );
-	vPos.push_back( osg::Vec3d( x, y, z ) );
+	mat->setMatrix( osg::Matrix::rotate(planeAxis, v1) * osg::Matrix::translate(x, y, z) );	
 
 	// 终点
 	double x2, y2, z2;
-	elm.convertLatLongHeightToXYZ( vStop.x(), vStop.y(), vStop.z(), x2, y2, z2 );
+	elm.convertLatLongHeightToXYZ( vStop.x(), vStop.y(), vStop.z(), x2, y2, z2 );	
 
-	double dh = 10.0;
+	CreateControlPoint( x, y, z, x2, y2, z2, vPos, vDir, v1 );
 
-	//TODO：控制点的数目100，这个数字需要替换掉，根据飞机的飞行距离来决定放多少个控制点
-	for ( int i=0; i<100; i++ )
-	{
-		double xt, yt, zt;
-		xt = x + ( x2-x )/100 * i;
-		yt = y + ( y2-y )/100 * i;
-		zt = z + ( z2-z )/100 * i;
-
-		osg::Vec3d pt = osg::Vec3d( xt, yt, zt );
-		vPos.push_back( pt );
-		vDir.push_back( v1 );
-	}
-
+	planeCb1->setAxis( planeAxis );
 	planeCb1->setPos( vPos );
+	// 飞机的轴向一直没有变化
 	planeCb1->setDir( vDir );
 	planeCb1->setAngle( osg::PI );
 	mat->setUpdateCallback(planeCb1);
@@ -359,5 +344,23 @@ void ESTCoreOSG::CreateRobbin( std::vector<osg::Vec3d> vPos )
 	m_root->addChild( ge.get() );
 }
 
+void ESTCoreOSG::CreateControlPoint( double x, double y, double z, double x2, double y2, double z2, std::vector<osg::Vec3d> &vPos, std::vector<osg::Vec3d> &vDir, osg::Vec3d v1 )
+{
+	// 初始化
+	vPos.push_back( osg::Vec3d( x, y, z ) );
+	vDir.push_back( v1 );
 
+	//TODO：控制点的数目100，这个数字需要替换掉，根据飞机的飞行距离来决定放多少个控制点
+	for ( int i=0; i<100; i++ )
+	{
+		double xt, yt, zt;
+		xt = x + ( x2-x )/100 * i;
+		yt = y + ( y2-y )/100 * i;
+		zt = z + ( z2-z )/100 * i;
+
+		osg::Vec3d pt = osg::Vec3d( xt, yt, zt );
+		vPos.push_back( pt );
+		vDir.push_back( v1 );
+	}
+}
 
