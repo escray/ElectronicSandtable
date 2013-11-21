@@ -40,7 +40,8 @@ osg::Node* ESTCreateHUD::createPositionHUD( osgText::Text* updateText )
 	osg::Camera* camera = initialCamera();
 
 	std::string timesFont("cour.ttf");
-	osg::Vec3 position(10.0, 50.0, 0.0);
+	// 下面字幕的位置
+	osg::Vec3 position(10.0, 80.0, 0.0);
 	osg::Geode* geode = new osg::Geode;
 	osg::StateSet* stateset = geode->getOrCreateStateSet();
 	stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);

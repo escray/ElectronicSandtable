@@ -32,15 +32,29 @@ bool ESTPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 
 void ESTPickHandler::pick( osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea )
 {
-	osgUtil::LineSegmentIntersector::Intersections intersectons;
+	osgUtil::LineSegmentIntersector::Intersections intersections;
+	osg::Group* root = dynamic_cast<osg::Group*>(viewer->getSceneData());
 
+	if (!root)
+	{
+		return;
+	}
 
-	
+	osg::Vec3f temp;
+
+	if (viewer->computeIntersections( ea.getX(), ea.getY(), intersections))
+	{
+		osgUtil::LineSegmentIntersector::Intersections::iterator hitr = intersections.begin();
+		temp = hitr->getWorldIntersectPoint();
+	}
+
 	std::string gdlist = "";
 	std::ostringstream os;
 	os<<"   Eye Position X: "<<(int)position[0]<<" Y: "<<(int)position[1]<<" Z: "<<(int)position[2] 
 	  <<"\nCenter Position X: "<<(int)center[0]<<" Y: "<<(int)center[1]<<" Z: "<<(int)center[2]
-	  <<"\n    Up Position X: "<<(double)up[0]<<" Y: "<<(double)up[2]<<" Z: "<<(double)up[2];
+	  <<"\n    Up Position X: "<<(double)up[0]<<" Y: "<<(double)up[1]<<" Z: "<<(double)up[2]
+	  <<"\n  Pick Position X: "<<(int)temp[0]<<" Y: "<<(int)temp[1]<<" Z: "<<(int)temp[2];
+
 	gdlist += os.str();
 	setLabel(gdlist);
 }

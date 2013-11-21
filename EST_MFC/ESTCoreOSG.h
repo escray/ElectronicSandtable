@@ -83,12 +83,17 @@ public:
 	//osg::Node* createHUD( void );	
 
 	osg::Geometry* createRibbonNode( void );
-
+	osg::Node* CreateCardinal();
+	void Cardinal( osg::ref_ptr<osg::Vec3Array> temp );
+	float GetCoefficient( float p0, float p1, float p2, float p3, float t );
 	//void Update( void );
 
 	//virtual void run();	
 
 	//void cancelThreads();
+
+	osg::ref_ptr<osg::Vec3Array> point;
+	osg::ref_ptr<osg::Group> ctrlPoints;
 
 private:
 
