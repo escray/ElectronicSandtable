@@ -163,8 +163,6 @@ void ESTCoreOSG::InitCameraConfig( void )
 	//m_viewer->realize();
 }
 
-
-
 void ESTCoreOSG::Render( void* ptr )
 {
 	ESTCoreOSG* osg = (ESTCoreOSG*)ptr;
@@ -320,6 +318,7 @@ void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Ve
 	CreateControlPoint( x, y, z, x2, y2, z2, vPos, vDir, v1 );
 
 	planeCb1->setAxis( planeAxis );
+	// 在这里加入 Cardinal 点集合
 	planeCb1->setPos( vPos );
 	// 飞机的轴向一直没有变化
 	planeCb1->setDir( vDir );
@@ -329,6 +328,7 @@ void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Ve
 
 void ESTCoreOSG::CreateRobbin( std::vector<osg::Vec3d> vPos )
 {
+
 	ribbonCb1->setPos( vPos );
 	ribbonCb1->setNp( true );
 	ribbonCb1->setA( osg::PI );
@@ -364,36 +364,4 @@ void ESTCoreOSG::CreateControlPoint( double x, double y, double z, double x2, do
 	}
 }
 
-osg::Node* ESTCoreOSG::CreateCardinal()
-{
-	osg::ref_ptr<osg::Vec3Array> allPoints = new osg::Vec3Array;
-	Cardinal( allPoints.get() );
-	
-	osg::Group* root = new osg::Group();
 
-
-	return ( osg::Node* )root;
-}
-
-void ESTCoreOSG::Cardinal( osg::ref_ptr<osg::Vec3Array> temp )
-{
-	// 这个 pointer 应该替换为 vPos，就是控制点的集合
-	// 2013-11-20
-	//std::vector<osg::Vec3>::iterator iter = point;
-	//osg::ref_ptr<osg::Vec3Array> ctrlTwo = new osg::Vec3Array();
-	//ctrlTwo->push_back( osg::Vec3( (*iter).x()-1, (*iter).y()-1, (*iter).z() ) );
-	//ctrlTwo->insert( ++(ctrlTwo->begin() ), point->begin(), point->end() );
-	//iter = point->end();
-
-
-}
-
-
-float ESTCoreOSG::GetCoefficient( float p0, float p1, float p2, float p3, float t )
-{
-	float d = p1;
-	float c = 0.5 * ( 1 - t ) * ( p2 - p0 );
-	float a = 0.5 * ( t - 1 ) * p0 + ( 1.5 + 0.5 * t ) * p1 - ( 1.5 + 0.5 * t ) * p2 + 0.5 * ( 1 - t ) * p3;
-	float b = p2 - a - d - c;
-	return ( a * t * t * t + b * t * t + c * t + d );
-}
