@@ -26,6 +26,11 @@ BEGIN_MESSAGE_MAP(CEST_MFCView, CView)
 	ON_WM_ERASEBKGND()
 	ON_WM_KEYDOWN()
 	ON_WM_DESTROY()
+	ON_COMMAND(ID_EDITPATH, &CEST_MFCView::OnEditPath)
+	ON_COMMAND(ID_OUTPUTPATH, &CEST_MFCView::OnOutputPath)
+	ON_COMMAND(ID_DISPLAYPATH, &CEST_MFCView::OnDisplayPath)
+	ON_COMMAND(ID_STOPDISPLAY, &CEST_MFCView::OnStopDisplay)
+
 END_MESSAGE_MAP()
 
 // CEST_MFCView construction/destruction
@@ -118,7 +123,11 @@ BOOL CEST_MFCView::OnEraseBkgnd( CDC* pDC )
 
 void CEST_MFCView::OnKeyDown( UINT nChar, UINT nRepCnt, UINT nFlags )
 {
-
+	m_osg->getViewer()->getEventQueue()->keyPress( nChar );
+	if ( nChar == VK_ESCAPE )
+	{
+		GetParent()->SendMessage(WM_CLOSE);
+	}
 }
 
 void CEST_MFCView::OnDestroy()
@@ -127,7 +136,41 @@ void CEST_MFCView::OnDestroy()
 	{
 		delete m_osg;
 	}
+
+	WaitForSingleObject(m_ThreadHandle, 1000);
+
 	CView::OnDestroy();
 }
 
+void CEST_MFCView::OnEditPath()
+{
+	m_osg->getEditPath()->setPick(true);
+}
+
+void CEST_MFCView::OnOutputPath()
+{
+	m_osg->getEditPath()->setPick(false);
+
+	m_osg->getViewer()->getSceneData()->asGroup()->addChild( m_osg->getEditPath()->CreateCardinal() );
+
+	char szFilter[] = "PATHÎÄ¼þ(*.path)|*.path||";
+
+	CFileDialog outputFile( false, "*.path", "saved.path", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, NULL, 0 );
+
+	if ( outputFile.DoModal() == IDOK )
+	{
+		pathName = outputFile.GetPathName().GetString();
+	}
+}
+
+void CEST_MFCView::OnDisplayPath()
+{
+	m_osg->PlayPath( m_osg->getEditPath()->CreatePath(pathName) );
+	
+}
+
+void CEST_MFCView::OnStopDisplay()
+{
+	m_osg->StopPath();
+}
 // CEST_MFCView message handlers

@@ -2,6 +2,7 @@
 #include <osg/LineWidth>
 #include <osg/Point>
 #include <osg/AnimationPath>
+#include <osg/io_utils>
 
 #include <osgGA/GUIActionAdapter>
 #include <osgGA/GUIEventHandler>
@@ -18,11 +19,13 @@
 class ESTPickHandler : public osgGA::GUIEventHandler
 {
 public:
+	ESTPickHandler(void);
 	ESTPickHandler(osgText::Text* updateText);
 	~ESTPickHandler(void);
 
 	bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa);
 
+	void frame(osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea);
 	virtual void pick(osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea);
 
 	osg::Group* DrawFirstNode(osg::Vec3f position);
@@ -30,6 +33,13 @@ public:
 
 	void setPick(bool pick);
 	bool getPick();
+
+	
+	double GetAllDistance();
+	float GetRunTime( osg::Vec3 res, osg::Vec3 des );
+
+	void setSecondPerMeter( double second );
+	double getSecondsPerMeter();
 
 	osg::AnimationPath* CreatePath(std::string pathName);
 
@@ -46,6 +56,7 @@ public:
 	void pushCardinal();
 
 	osg::Group* getCtrlPointGroup();
+	void setUpdateText( osgText::Text* updateText );
 
 protected:
 	osg::Vec3 position;
@@ -68,6 +79,10 @@ protected:
 	// 所选的点集合
 	osg::ref_ptr<osg::Vec3Array> point;
 	// 控制点
-	osg::ref_ptr<osg::Group> ctrlPoints;	
+	osg::ref_ptr<osg::Group> ctrlPoints;
+
+	int size;
+	double sec;
+
 };
 

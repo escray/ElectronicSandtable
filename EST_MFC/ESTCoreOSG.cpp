@@ -9,6 +9,8 @@ ESTCoreOSG::ESTCoreOSG(HWND hWnd) : m_hWnd(hWnd)
 	bhManipulator = new BHManipulator;
 	southManipulator = new SouthManipulator;
 
+	editpath = new ESTPickHandler();
+
 	elm.setRadiusEquator(6378137);
 	elm.setRadiusPolar(6378137);
 
@@ -287,7 +289,8 @@ void ESTCoreOSG::CreateHUD()
 {
 	ESTCreateHUD hud;
 	osgText::Text* updateText = new osgText::Text;
-	m_viewer->addEventHandler(new ESTPickHandler(updateText));
+	editpath->setUpdateText(updateText);
+	m_viewer->addEventHandler(editpath);
 	m_root->addChild(hud.createTitleHUD());
 	m_root->addChild(hud.createPositionHUD(updateText));
 }
@@ -362,6 +365,27 @@ void ESTCoreOSG::CreateControlPoint( double x, double y, double z, double x2, do
 		vPos.push_back( pt );
 		vDir.push_back( v1 );
 	}
+}
+
+ESTPickHandler* ESTCoreOSG::getEditPath()
+{
+	return editpath;
+}
+
+void ESTCoreOSG::StopPath()
+{
+	if (cameraManipulator.valid())
+	{
+		m_viewer->setCameraManipulator(cameraManipulator);
+	}
+}
+
+void ESTCoreOSG::PlayPath( osg::AnimationPath* path )
+{
+	osgGA::AnimationPathManipulator* apm = new osgGA::AnimationPathManipulator();
+	apm->setAnimationPath(path);
+	cameraManipulator = m_viewer->getCameraManipulator();
+	m_viewer->setCameraManipulator(apm);
 }
 
 

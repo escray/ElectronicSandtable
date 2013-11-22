@@ -72,7 +72,7 @@ public:
 
 	void ReplaceSceneData(std::string filename);
 
-	//PickHandler* getEditPath();
+	ESTPickHandler* getEditPath();
 
 	osgViewer::Viewer* getViewer();
 
@@ -83,7 +83,8 @@ public:
 	//osg::Node* createHUD( void );	
 
 	osg::Geometry* createRibbonNode( void );
-
+	void StopPath();
+	void PlayPath( osg::AnimationPath* path );
 	//void Update( void );
 
 	//virtual void run();	
@@ -115,6 +116,8 @@ private:
 	double RadianPerDegree;
 
 	osg::Vec3d planeAxis;
+
+	ESTPickHandler* editpath;
 
 };
 

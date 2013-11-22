@@ -46,6 +46,13 @@ public:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnDestroy();
+
+	afx_msg void OnEditPath();
+	afx_msg void OnOutputPath();
+	afx_msg void OnDisplayPath();
+	afx_msg void OnStopDisplay();
+
+	std::string pathName;
 };
 
 #ifndef _DEBUG  // debug version in EST_MFCView.cpp
