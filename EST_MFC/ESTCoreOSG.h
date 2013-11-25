@@ -4,7 +4,8 @@
 #include <osg/CameraNode>
 #include <osg/BlendFunc>
 #include <osg/LineWidth>
-
+#include <osg/MatrixTransform>
+#include <osg/PositionAttitudeTransform>
 
 #include <osgDB/DatabasePager>
 #include <osgDB/Registry>
@@ -19,9 +20,16 @@
 #include <osgText/Text>
 
 #include <osgUtil/Optimizer>
+
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/api/Win32/GraphicsWindowWin32>
+
+#include <osgParticle/ExplosionEffect>
+#include <osgParticle/ExplosionDebrisEffect>
+#include <osgParticle/SmokeEffect>
+#include <osgParticle/SmokeTrailEffect>
+#include <osgParticle/FireEffect>
 
 #include "ESTManipulator.h"
 #include "SouthManipulator.h"
@@ -85,6 +93,10 @@ public:
 	osg::Geometry* createRibbonNode( void );
 	void StopPath();
 	void PlayPath( osg::AnimationPath* path );
+
+
+	osg::AnimationPath* createAnimationPath(const osg::Vec3& center, float radius, double looptime);
+	osg::Node* createMovingModel(const osg::Vec3& center, float radius);
 	//void Update( void );
 
 	//virtual void run();	

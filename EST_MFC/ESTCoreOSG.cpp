@@ -39,6 +39,37 @@ void ESTCoreOSG::InitOSG( std::string filename )
 	InitManipulators();
 	InitSceneGraph();
 	InitCameraConfig();
+
+	osg::ref_ptr<osg::Node> model = osgDB::readNodeFile(".\\data\\plane.ive");
+	if (!model)
+	{
+		return;
+	}
+	// 飞机控制点
+	// 与飘带共享
+	std::vector<osg::Vec3d> vPos;
+
+	osg::Vec3d vStart( 39.0*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
+	osg::Vec3d vStop( 41.5*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
+	// 飞机轴线，+或者-表示机头的朝向
+	osg::Vec3d vAxis( (39.0+1.0/3600)*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
+
+	CreatePlane(model, vPos, vStart, vStop, vAxis);
+	CreateRobbin(vPos);
+	// 添加的飞机模型无法显示，考虑采用经纬度再试一次
+	m_root->addChild(createMovingModel(osg::Vec3(-2190448, 4431758.5, 5000), 300.0f));
+
+	//m_root->addChild(osgDB::readNodeFile(".\\data\\plane.ive"));
+
+	//CreateHUD();
+
+	
+
+	//osg::Vec3 center();
+
+
+	m_viewer->setSceneData(m_root.get());
+	m_viewer->getCamera()->setCullingMode(m_viewer->getCamera()->getCullingMode() & ~osg::CullStack::SMALL_FEATURE_CULLING );
 }
 
 void ESTCoreOSG::InitManipulators( void )
@@ -119,34 +150,6 @@ void ESTCoreOSG::InitCameraConfig( void )
 	//m_viewer->setCamera(camera.get());
 	//bhManipulator->setViewer(m_viewer);
 	//m_viewer->setCameraManipulator(bhManipulator.get());
-
-	
-	// 需要改用相对路径
-	osg::ref_ptr<osg::Node> model = osgDB::readNodeFile(".\\data\\plane.ive");
-
-	if (!model)
-	{
-		return;
-	}
-	
-	// 飞机控制点
-	// 与飘带共享
-	std::vector<osg::Vec3d> vPos;
-
-	osg::Vec3d vStart( 39.0*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
-	osg::Vec3d vStop( 41.5*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
-	// 飞机轴线，+或者-表示机头的朝向
-	osg::Vec3d vAxis( (39.0+1.0/3600)*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
-
-	CreatePlane(model, vPos, vStart, vStop, vAxis);
-
-
-	CreateRobbin(vPos);
-
-
-	CreateHUD();
-
-
 	//  [8/28/2013 zhaorui]
 	// 如果是其他的 manipulator 如何处理？
 	//osg::Vec3d center;
@@ -160,8 +163,7 @@ void ESTCoreOSG::InitCameraConfig( void )
 	//m_root->addChild(hud.createPositionHUD(updateText);
 	//	}
 
-	m_viewer->setSceneData(m_root.get());
-	m_viewer->getCamera()->setCullingMode(m_viewer->getCamera()->getCullingMode() & ~osg::CullStack::SMALL_FEATURE_CULLING );
+	
 	//m_viewer->realize();
 }
 
@@ -388,4 +390,62 @@ void ESTCoreOSG::PlayPath( osg::AnimationPath* path )
 	m_viewer->setCameraManipulator(apm);
 }
 
+// 2013-11-25
+osg::AnimationPath* ESTCoreOSG::createAnimationPath(const osg::Vec3& center, float radius, double looptime)
+{
+	osg::AnimationPath* animationPath = new osg::AnimationPath;	
+	animationPath->setLoopMode(osg::AnimationPath::LOOP);
 
+	int numSamples = 40;
+	float yaw = 0.0f;
+	float yaw_delta = 2.0f * osg::PI/((float)numSamples - 1.0f);
+	float roll = osg::inDegrees(30.0f);
+
+	double time = 0.0f;
+	double time_delta = looptime/(double)numSamples;
+
+	for (int i=0; i<numSamples; ++i)
+	{
+		osg::Vec3 position( center + osg::Vec3( sinf(yaw)*radius, cosf(yaw)*radius, 0.0f ) );
+		osg::Quat rotation( osg::Quat( roll, osg::Vec3( 0.0, 1.0, 0.0 ))*osg::Quat( -( yaw+osg::inDegrees(90.0f) ), osg::Vec3(0.0, 0.0, 1.0) ) ) ;
+
+		animationPath->insert( time, osg::AnimationPath::ControlPoint( position, rotation ) );
+
+		yaw += yaw_delta;
+		time += time_delta;
+	}
+	return animationPath;
+}
+
+osg::Node* ESTCoreOSG::createMovingModel(const osg::Vec3& center, float radius)
+{
+	float animationLength = 100.0f;
+	osg::Group* model = new osg::Group;
+	osg::AnimationPath* animationPath = createAnimationPath(center, radius, animationLength);
+	
+	osg::Node* glider = osgDB::readNodeFile(".\\data\\plane.ive");
+	if (glider)
+	{
+		const osg::BoundingSphere& bs = glider->getBound();
+		float size = radius/bs.radius()*0.15f;
+
+		osg::MatrixTransform* positioned = new osg::MatrixTransform;
+		positioned->setDataVariance( osg::Object::STATIC );
+		positioned->setMatrix( osg::Matrix::translate( -bs.center() )*
+							   osg::Matrix::scale( 10.0, 10.0, 10.0 )*
+							   osg::Matrix::rotate( osg::inDegrees(-90.0f), 0.0f, 0.0f, 1.0f ) );
+
+		positioned->addChild(glider);
+		
+		osg::PositionAttitudeTransform* xform = new osg::PositionAttitudeTransform;
+		xform->setDataVariance(osg::Object::DYNAMIC);
+		xform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
+		xform->setUpdateCallback( new osg::AnimationPathCallback(animationPath, 0.0, 0.5) );
+		xform->addChild( positioned );
+
+		model->addChild( xform );
+
+	}
+
+	return model;
+}
