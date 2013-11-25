@@ -36,6 +36,8 @@
 #include "BHManipulator.h"
 #include "ESTCreateHUD.h"
 #include "ESTPickHandler.h"
+#include "planeUpdate.h"
+#include "ribbonUpdate.h"
 //#include "ESTThread.h"
 
 // OSG 核心类，在这里执行 MFC 对 OSG 的管理功能
@@ -56,9 +58,9 @@ public:
 
 	void InitCameraConfig(void);
 
-	void CreateRobbin( std::vector<osg::Vec3d> vPos );
+	void CreateRibbon( std::vector<osg::Vec3d> vPos, osg::ref_ptr<ribbonUpdate>& ribboncb );
 
-	void CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Vec3d>& vPos, osg::Vec3d vStart, osg::Vec3d vStop, osg::Vec3d vAxis );
+	void CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Vec3d>& vPos, osg::Vec3d vStart, osg::Vec3d vStop, osg::Vec3d vAxis, osg::ref_ptr<planeUpdate>& planecb);
 
 	void CreateControlPoint( double x, double y, double z, double x2, double y2, double z2, std::vector<osg::Vec3d> &vPos, std::vector<osg::Vec3d> &vDir, osg::Vec3d v1);
 

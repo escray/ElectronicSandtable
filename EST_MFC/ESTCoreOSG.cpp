@@ -32,6 +32,9 @@ ESTCoreOSG::~ESTCoreOSG(void)
 osg::ref_ptr<planeUpdate> planeCb1 = new planeUpdate;
 osg::ref_ptr<ribbonUpdate> ribbonCb1 = new ribbonUpdate;
 
+osg::ref_ptr<planeUpdate> planeCb2 = new planeUpdate;
+osg::ref_ptr<ribbonUpdate> ribbonCb2 = new ribbonUpdate;
+
 
 void ESTCoreOSG::InitOSG( std::string filename )
 {
@@ -54,16 +57,68 @@ void ESTCoreOSG::InitOSG( std::string filename )
 	// 飞机轴线，+或者-表示机头的朝向
 	osg::Vec3d vAxis( (39.0+1.0/3600)*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
 
-	CreatePlane(model, vPos, vStart, vStop, vAxis);
-	CreateRobbin(vPos);
+	// planeCB1 的初始化是否可以放到函数里面？
+	CreatePlane(model, vPos, vStart, vStop, vAxis, planeCb1);
+	CreateRibbon(vPos, ribbonCb1);
 	// 添加的飞机模型无法显示，考虑采用经纬度再试一次
-	m_root->addChild(createMovingModel(osg::Vec3(-2190448, 4431758.5, 5000), 300.0f));
+	//m_root->addChild(createMovingModel(osg::Vec3(-2190448, 4431758.5, 5000), 300.0f));
 
 	//m_root->addChild(osgDB::readNodeFile(".\\data\\plane.ive"));
 
-	//CreateHUD();
+	{
 
+
+		double x, y, z,x1, y1, z1;
+		elm.convertLatLongHeightToXYZ(39.5*RadianPerDegree, 116.5*RadianPerDegree, 5000, x, y, z);
+
+		elm.convertLatLongHeightToXYZ(41.5*RadianPerDegree, 116.5*RadianPerDegree, 5000, x1, y1, z1);
+		osg::Vec3d v1 = osg::Vec3d(x1, y1, z1) - osg::Vec3d(x, y, z);
+
+		osg::Vec3d v0 = osg::Vec3d(-8.4, 32.3-4898.6, 476.4-550.4);
+
+		osg::ref_ptr<osg::Node> model1 = osgDB::readNodeFile(".\\data\\glider.osgt");
+		if (!model1)
+		{
+			return;
+		}
+
+		osg::ref_ptr<osg::MatrixTransform> mt2 = new osg::MatrixTransform();
+		mt2->setDataVariance(osg::Object::STATIC);
+		mt2->setMatrix(  osg::Matrix::scale(10000.0f, 10000.0f, 10000.0f) * osg::Matrix::rotate(osg::inDegrees(-45.0f), 0.0f, 0.0f, 1.0f) * osg::Matrix::translate(x, y, z) );
+			//osg::Matrix::scale(1.0f, 1.0f, 1.0f));
+		mt2->addChild(model1);
+
+
+		osg::AnimationPath* animationPath = createAnimationPath(osg::Vec3d(x, y, z), 300000.0f, 100.0f);
+
+
+		osg::PositionAttitudeTransform* xform = new PositionAttitudeTransform();
+		xform->setDataVariance(osg::Object::DYNAMIC);
+		xform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
+		// animationPath 这里有问题
+		//xform->setUpdateCallback(new osg::AnimationPathCallback(animationPath, 0.0, 0.5));
+		xform->addChild(mt2);
+		m_root->addChild(xform);	
+
+		//m_root->addChild(mt2);
+		
+		
+
+	}
 	
+
+
+
+
+
+	CreateHUD();
+
+	//osg::Vec3d vStart2( 40*RadianPerDegree, 116.5*RadianPerDegree, 5000 );
+	//osg::Vec3d vStop2( 41.5*RadianPerDegree, 116.5*RadianPerDegree, 5000 );
+	//osg::Vec3d vAxis2( (39.5+1.0/3600)*RadianPerDegree, 116.5*RadianPerDegree, 5000 );
+
+	//CreatePlane(model, vPos, vStart2, vStop2, vAxis2, planeCb2);
+	//CreateRobbin(vPos);
 
 	//osg::Vec3 center();
 
@@ -297,7 +352,8 @@ void ESTCoreOSG::CreateHUD()
 	m_root->addChild(hud.createPositionHUD(updateText));
 }
 
-void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Vec3d>& vPos, osg::Vec3d vStart, osg::Vec3d vStop, osg::Vec3d vAxis )
+// 路径计算部分可以独立出去
+void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Vec3d>& vPos, osg::Vec3d vStart, osg::Vec3d vStop, osg::Vec3d vAxis, osg::ref_ptr<planeUpdate>& planecb )
 {
 	std::vector<osg::Vec3d> vDir;
 
@@ -322,28 +378,29 @@ void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Ve
 
 	CreateControlPoint( x, y, z, x2, y2, z2, vPos, vDir, v1 );
 
-	planeCb1->setAxis( planeAxis );
+	//osg::ref_ptr<planeUpdate> planecallback = new planeUpdate();
+
+	planecb->setAxis( planeAxis );
 	// 在这里加入 Cardinal 点集合
-	planeCb1->setPos( vPos );
+	planecb->setPos( vPos );
 	// 飞机的轴向一直没有变化
-	planeCb1->setDir( vDir );
-	planeCb1->setAngle( osg::PI );
-	mat->setUpdateCallback(planeCb1);
+	planecb->setDir( vDir );
+	planecb->setAngle( osg::PI );
+	mat->setUpdateCallback(planecb);
 }
 
-void ESTCoreOSG::CreateRobbin( std::vector<osg::Vec3d> vPos )
+void ESTCoreOSG::CreateRibbon( std::vector<osg::Vec3d> vPos, osg::ref_ptr<ribbonUpdate>& ribboncb )
 {
-
-	ribbonCb1->setPos( vPos );
-	ribbonCb1->setNp( true );
-	ribbonCb1->setA( osg::PI );
-	ribbonCb1->setEmp( bhManipulator );
+	ribboncb->setPos( vPos );
+	ribboncb->setNp( true );
+	ribboncb->setA( osg::PI );
+	ribboncb->setEmp( bhManipulator );
 
 	osg::ref_ptr<osg::Geode> ge = new osg::Geode();
 	osg::ref_ptr<osg::Geometry> gm = createRibbonNode();
 
 	ge->addDrawable( gm.get() );
-	gm->setUpdateCallback( ribbonCb1 );
+	gm->setUpdateCallback( ribboncb );
 	gm->setDataVariance( osg::Object::DYNAMIC );
 
 	m_root->addChild( ge.get() );
