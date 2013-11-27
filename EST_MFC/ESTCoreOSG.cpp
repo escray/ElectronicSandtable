@@ -378,6 +378,35 @@ void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Ve
 
 	CreateControlPoint( x, y, z, x2, y2, z2, vPos, vDir, v1 );
 
+	osg::AnimationPath* path = createSimpleAnimationPath(x, y, z, x2, y2, z2, v1);
+	
+	osg::Node* glider = osgDB::readNodeFile(".\\data\\plane.ive");
+	if (glider)
+	{
+		float radius = 300.0f;
+		const osg::BoundingSphere& bs = glider->getBound();
+		float size = radius/bs.radius()*0.15f;
+
+		osg::MatrixTransform* positioned = new osg::MatrixTransform;
+		positioned->setDataVariance( osg::Object::STATIC );
+		positioned->setMatrix( osg::Matrix::translate( -bs.center() )*
+			osg::Matrix::scale( 1.0, 1.0, 1.0 )*
+			osg::Matrix::rotate(planeAxis, v1) );
+
+		positioned->addChild(glider);
+
+		osg::PositionAttitudeTransform* xform = new osg::PositionAttitudeTransform;
+		xform->setDataVariance(osg::Object::DYNAMIC);
+		xform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
+		xform->setUpdateCallback( new osg::AnimationPathCallback(path, 0.0, 0.5) );
+		xform->addChild( positioned );
+
+		m_root->addChild( xform );
+
+	}
+	//1. animation
+	//2. particle
+
 	//osg::ref_ptr<planeUpdate> planecallback = new planeUpdate();
 
 	planecb->setAxis( planeAxis );
@@ -474,11 +503,41 @@ osg::AnimationPath* ESTCoreOSG::createAnimationPath(const osg::Vec3& center, flo
 	return animationPath;
 }
 
+osg::AnimationPath* ESTCoreOSG::createSimpleAnimationPath( double x, double y, double z, double x2, double y2, double z2, osg::Vec3d v1 )
+{
+	osg::AnimationPath* animationPath = new osg::AnimationPath;	
+	animationPath->setLoopMode(osg::AnimationPath::LOOP);
+	
+	double looptime = 10;
+	int numSamples = 100;
+	double time = 0.0f;
+	double time_delta = looptime/(double)numSamples;
+
+	for ( int i=0; i<numSamples; i++ )
+	{
+		double xt, yt, zt;
+		xt = x + ( x2-x )/numSamples * i;
+		yt = y + ( y2-y )/numSamples * i;
+		zt = z + ( z2-z )/numSamples * i;
+		time += time_delta;
+		osg::Vec3 position(xt, yt, zt);
+		osg::Quat rotation(osg::inDegrees(0.0f), v1);
+
+		animationPath->insert( time, osg::AnimationPath::ControlPoint(position, rotation));
+
+	}
+
+
+	return animationPath;
+}
+
 osg::Node* ESTCoreOSG::createMovingModel(const osg::Vec3& center, float radius)
 {
 	float animationLength = 100.0f;
 	osg::Group* model = new osg::Group;
 	osg::AnimationPath* animationPath = createAnimationPath(center, radius, animationLength);
+	
+
 	
 	osg::Node* glider = osgDB::readNodeFile(".\\data\\plane.ive");
 	if (glider)
@@ -506,3 +565,5 @@ osg::Node* ESTCoreOSG::createMovingModel(const osg::Vec3& center, float radius)
 
 	return model;
 }
+
+

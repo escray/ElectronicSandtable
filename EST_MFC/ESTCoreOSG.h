@@ -99,6 +99,7 @@ public:
 
 	osg::AnimationPath* createAnimationPath(const osg::Vec3& center, float radius, double looptime);
 	osg::Node* createMovingModel(const osg::Vec3& center, float radius);
+	osg::AnimationPath* createSimpleAnimationPath( double x, double y, double z, double x2, double y2, double z2, osg::Vec3d v1 );
 	//void Update( void );
 
 	//virtual void run();	
