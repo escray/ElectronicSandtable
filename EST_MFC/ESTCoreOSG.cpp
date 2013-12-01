@@ -61,50 +61,9 @@ void ESTCoreOSG::InitOSG( std::string filename )
 	CreatePlane(model, vPos, vStart, vStop, vAxis, planeCb1);
 	CreateRibbon(vPos, ribbonCb1);
 	// 添加的飞机模型无法显示，考虑采用经纬度再试一次
-	//m_root->addChild(createMovingModel(osg::Vec3(-2190448, 4431758.5, 5000), 300.0f));
-
-	//m_root->addChild(osgDB::readNodeFile(".\\data\\plane.ive"));
-
-	{
 
 
-		double x, y, z,x1, y1, z1;
-		elm.convertLatLongHeightToXYZ(39.5*RadianPerDegree, 116.5*RadianPerDegree, 5000, x, y, z);
-
-		elm.convertLatLongHeightToXYZ(41.5*RadianPerDegree, 116.5*RadianPerDegree, 5000, x1, y1, z1);
-		osg::Vec3d v1 = osg::Vec3d(x1, y1, z1) - osg::Vec3d(x, y, z);
-
-		osg::Vec3d v0 = osg::Vec3d(-8.4, 32.3-4898.6, 476.4-550.4);
-
-		osg::ref_ptr<osg::Node> model1 = osgDB::readNodeFile(".\\data\\glider.osgt");
-		if (!model1)
-		{
-			return;
-		}
-
-		osg::ref_ptr<osg::MatrixTransform> mt2 = new osg::MatrixTransform();
-		mt2->setDataVariance(osg::Object::STATIC);
-		mt2->setMatrix(  osg::Matrix::scale(10000.0f, 10000.0f, 10000.0f) * osg::Matrix::rotate(osg::inDegrees(-45.0f), 0.0f, 0.0f, 1.0f) * osg::Matrix::translate(x, y, z) );
-			//osg::Matrix::scale(1.0f, 1.0f, 1.0f));
-		mt2->addChild(model1);
-
-
-		osg::AnimationPath* animationPath = createAnimationPath(osg::Vec3d(x, y, z), 300000.0f, 100.0f);
-
-
-		osg::PositionAttitudeTransform* xform = new PositionAttitudeTransform();
-		xform->setDataVariance(osg::Object::DYNAMIC);
-		xform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
-		// animationPath 这里有问题
-		//xform->setUpdateCallback(new osg::AnimationPathCallback(animationPath, 0.0, 0.5));
-		xform->addChild(mt2);
-		m_root->addChild(xform);	
-
-		//m_root->addChild(mt2);
-		
-		
-
-	}
+	
 	
 
 
@@ -380,30 +339,8 @@ void ESTCoreOSG::CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Ve
 
 	osg::AnimationPath* path = createSimpleAnimationPath(x, y, z, x2, y2, z2, v1);
 	
-	osg::Node* glider = osgDB::readNodeFile(".\\data\\plane.ive");
-	if (glider)
-	{
-		float radius = 300.0f;
-		const osg::BoundingSphere& bs = glider->getBound();
-		float size = radius/bs.radius()*0.15f;
+	createSimplePlane(v1, path);
 
-		osg::MatrixTransform* positioned = new osg::MatrixTransform;
-		positioned->setDataVariance( osg::Object::STATIC );
-		positioned->setMatrix( osg::Matrix::translate( -bs.center() )*
-			osg::Matrix::scale( 1.0, 1.0, 1.0 )*
-			osg::Matrix::rotate(planeAxis, v1) );
-
-		positioned->addChild(glider);
-
-		osg::PositionAttitudeTransform* xform = new osg::PositionAttitudeTransform;
-		xform->setDataVariance(osg::Object::DYNAMIC);
-		xform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
-		xform->setUpdateCallback( new osg::AnimationPathCallback(path, 0.0, 0.5) );
-		xform->addChild( positioned );
-
-		m_root->addChild( xform );
-
-	}
 	//1. animation
 	//2. particle
 
@@ -564,6 +501,34 @@ osg::Node* ESTCoreOSG::createMovingModel(const osg::Vec3& center, float radius)
 	}
 
 	return model;
+}
+
+void ESTCoreOSG::createSimplePlane( osg::Vec3d v1, osg::AnimationPath* path )
+{
+	osg::Node* plane = osgDB::readNodeFile(".\\data\\plane.ive");
+	if (plane)
+	{
+		float radius = 300.0f;
+		const osg::BoundingSphere& bs = plane->getBound();
+		float size = radius/bs.radius()*0.15f;
+
+		osg::MatrixTransform* positioned = new osg::MatrixTransform;
+		positioned->setDataVariance( osg::Object::STATIC );
+		positioned->setMatrix( osg::Matrix::translate( -bs.center() )*
+			osg::Matrix::scale( 1.0, 1.0, 1.0 )*
+			osg::Matrix::rotate(planeAxis, v1) );
+
+		positioned->addChild(plane);
+
+		osg::PositionAttitudeTransform* xform = new osg::PositionAttitudeTransform;
+		xform->setDataVariance(osg::Object::DYNAMIC);
+		xform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
+		xform->setUpdateCallback( new osg::AnimationPathCallback(path, 0.0, 0.5) );
+		xform->addChild( positioned );
+
+		m_root->addChild( xform );
+
+	}
 }
 
 

@@ -97,6 +97,107 @@ void ESTPickHandler::pick( osgViewer::Viewer* viewer, const osgGA::GUIEventAdapt
 			ctrlPoints->addChild( DrawCtrlPoints(temp) );
 		}
 	}
+
+	// particle
+	if ( viewer->computeIntersections(ea, intersections) )
+	{
+		const osgUtil::LineSegmentIntersector::Intersection& hit = *intersections.begin();
+
+		bool handleMovingModels = false;
+		const osg::NodePath& nodePath = hit.nodePath;
+		for ( osg::NodePath::const_iterator nitr = nodePath.begin(); nitr != nodePath.end(); ++nitr )
+		{
+			const osg::Transform* transform = dynamic_cast<const osg::Transform*>(*nitr);
+			if ( transform )
+			{
+				if ( transform->getDataVariance() == osg::Object::DYNAMIC )
+				{
+					handleMovingModels = true;
+				}
+			}
+		}
+
+		osg::Vec3 position = handleMovingModels ? hit.getLocalIntersectPoint() : hit.getWorldIntersectPoint();
+		float scale = 500.0f * ( (float)rand() )/( (float)RAND_MAX );
+		float intensity = 1.0f;
+
+		osg::Vec3 wind( 1.0f, 0.0f, 0.0f );
+
+		osgParticle::ExplosionEffect* explosion = new osgParticle::ExplosionEffect( position, scale, intensity );
+		osgParticle::ExplosionDebrisEffect* explosionDebri = new osgParticle::ExplosionDebrisEffect( position, scale, intensity );
+		osgParticle::FireEffect* fire = new osgParticle::FireEffect( position, scale, intensity );
+		osgParticle::ParticleEffect* smoke = 0;
+
+		if ( handleMovingModels )
+		{
+			smoke = new osgParticle::SmokeTrailEffect( position, scale, intensity );
+		}
+		else
+		{
+			smoke = new osgParticle::SmokeTrailEffect( position, scale, intensity );
+		}
+
+		explosion->setWind( wind );
+		explosionDebri->setWind( wind );
+		smoke->setWind( wind );
+		fire->setWind( wind );
+
+		osg::Group* effectsGroup = new osg::Group;
+		effectsGroup->addChild( explosion );
+		effectsGroup->addChild( explosionDebri );
+		effectsGroup->addChild( smoke );
+		effectsGroup->addChild( fire );
+
+		if ( handleMovingModels )
+		{
+			explosion->setUseLocalParticleSystem( false );
+			explosionDebri->setUseLocalParticleSystem( false );
+			smoke->setUseLocalParticleSystem( false );
+			fire->setUseLocalParticleSystem(false);
+
+			osg::ref_ptr<osg::Node> hitNode = hit.nodePath.back();
+			osg::Node::ParentList parents = hitNode->getParents();
+			osg::Group* insertGroup = 0;
+			unsigned int numGroupsFound = 0;
+			for (osg::Node::ParentList::iterator itr=parents.begin(); itr!=parents.end(); ++itr)
+			{
+				if (typeid(*(*itr)) == typeid(osg::Group))
+				{
+					++numGroupsFound;
+					insertGroup = *itr;
+				}
+			}
+
+			if ( numGroupsFound == parents.size() && numGroupsFound == 1 && insertGroup )
+			{
+				insertGroup->addChild(effectsGroup);
+			}
+			else
+			{
+				insertGroup = new osg::Group;
+				for (osg::Node::ParentList::iterator itr=parents.begin(); itr!=parents.end(); ++itr)
+				{
+					(*itr)->replaceChild(hit.nodePath.back(), insertGroup);
+				}
+				insertGroup->addChild(hitNode.get());
+				insertGroup->addChild(effectsGroup);
+			}
+
+			osg::Geode* geode = new osg::Geode;
+			geode->addDrawable( explosion->getParticleSystem() );
+			geode->addDrawable( explosionDebri->getParticleSystem() );
+			geode->addDrawable( smoke->getParticleSystem() );
+			geode->addDrawable( fire->getParticleSystem() );
+
+			root->addChild( geode );
+		}
+		else
+		{
+			root->addChild( effectsGroup );
+	
+		}
+
+	}
 	
 }
 

@@ -62,6 +62,8 @@ public:
 
 	void CreatePlane( osg::ref_ptr<osg::Node> model, std::vector<osg::Vec3d>& vPos, osg::Vec3d vStart, osg::Vec3d vStop, osg::Vec3d vAxis, osg::ref_ptr<planeUpdate>& planecb);
 
+	void createSimplePlane( osg::Vec3d v1, osg::AnimationPath* path );
+
 	void CreateControlPoint( double x, double y, double z, double x2, double y2, double z2, std::vector<osg::Vec3d> &vPos, std::vector<osg::Vec3d> &vDir, osg::Vec3d v1);
 
 	void CreateHUD();

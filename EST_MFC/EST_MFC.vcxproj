@@ -57,7 +57,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OSG);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>osgd.lib;osgDBd.lib;osgGAd.lib;osgViewerd.lib;osgUtild.lib;osgTextd.lib;osgAnimationd.lib;osgManipulatord.lib;osgParticled.lib;OpenThreadsd.lib</AdditionalDependencies>
+      <AdditionalDependencies>osgParticled.lib;osgd.lib;osgDBd.lib;osgGAd.lib;osgViewerd.lib;osgUtild.lib;osgTextd.lib;osgAnimationd.lib;osgManipulatord.lib;osgParticled.lib;OpenThreadsd.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

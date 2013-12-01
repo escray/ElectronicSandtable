@@ -4,6 +4,12 @@
 #include <osg/AnimationPath>
 #include <osg/io_utils>
 
+#include <osgParticle/ExplosionEffect>
+#include <osgParticle/ExplosionDebrisEffect>
+#include <osgParticle/SmokeEffect>
+#include <osgParticle/SmokeTrailEffect>
+#include <osgParticle/FireEffect>
+
 #include <osgGA/GUIActionAdapter>
 #include <osgGA/GUIEventHandler>
 #include <osgGA/GUIEventAdapter>
