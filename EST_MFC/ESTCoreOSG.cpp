@@ -18,6 +18,15 @@ ESTCoreOSG::ESTCoreOSG(HWND hWnd) : m_hWnd(hWnd)
 
 	// 飞机轴线位置，来自于飞机模型
 	planeAxis = osg::Vec3d( -8.4, 32.3-4898.6, 476.4-550.4 );
+
+	// for test
+	
+	initialPoints = new osg::Vec3Array();
+	initialPoints->push_back(osg::Vec3(-2185423.25, 4437509, 5000));
+	initialPoints->push_back(osg::Vec3(-2190448, 4431758.5, 5000));
+	initialPoints->push_back(osg::Vec3(-2177271.25, 4426147.5, 5000));
+	initialPoints->push_back(osg::Vec3(-2182646.75, 4402591, 5000));
+	initialPoints->push_back(osg::Vec3(-2189121, 4335879, 5000));
 }
 
 ESTCoreOSG::~ESTCoreOSG(void)
@@ -38,6 +47,8 @@ osg::ref_ptr<ribbonUpdate> ribbonCb2 = new ribbonUpdate;
 
 void ESTCoreOSG::InitOSG( std::string filename )
 {
+
+
 	m_ModelName = filename;
 	InitManipulators();
 	InitSceneGraph();
@@ -197,7 +208,7 @@ void ESTCoreOSG::Render( void* ptr )
 		osg->PreFrameUpdate();
 		viewer->frame();
 		osg->PostFrameUpdate();
-		Sleep(10);
+		//Sleep(10);
 	}
 
 	_endthread();
@@ -440,6 +451,33 @@ osg::AnimationPath* ESTCoreOSG::createAnimationPath(const osg::Vec3& center, flo
 	return animationPath;
 }
 
+osg::AnimationPath* ESTCoreOSG::createCardinalAnimationPath( osg::ref_ptr<osg::Vec3Array> controls )
+{
+	osg::AnimationPath* animationPath = new osg::AnimationPath;	
+	animationPath->setLoopMode(osg::AnimationPath::LOOP);
+
+	double looptime = 10;
+	int numSamples = 100;
+	double time = 0.0f;
+	double time_delta = looptime/(double)numSamples;
+
+//	osg::Vec3 startPoint = controls->begin();
+
+//	std::vector<osg::Vec3>::iterator = controls->begin();
+	osg::ref_ptr<osg::Vec3Array> controlPoints = new osg::Vec3Array;
+
+
+
+	// 求两点间距离
+
+	// 求采样点个数
+
+	// 得到轨迹点
+
+
+	return animationPath;
+}
+
 osg::AnimationPath* ESTCoreOSG::createSimpleAnimationPath( double x, double y, double z, double x2, double y2, double z2, osg::Vec3d v1 )
 {
 	osg::AnimationPath* animationPath = new osg::AnimationPath;	
@@ -450,17 +488,41 @@ osg::AnimationPath* ESTCoreOSG::createSimpleAnimationPath( double x, double y, d
 	double time = 0.0f;
 	double time_delta = looptime/(double)numSamples;
 
+	// begin for test
+	//osg::ref_ptr<osg::Vec3Array> points = new osg::Vec3Array();
+
+	//points->push_back(osg::Vec3(-2185423.25, 4437509, 5000));
+	//points->push_back(osg::Vec3(-2190448, 4431758.5, 5000));
+	//points->push_back(osg::Vec3(-2177271.25, 4426147.5, 5000));
+	//points->push_back(osg::Vec3(-2182646.75, 4402591, 5000));
+	//points->push_back(osg::Vec3(-2189121, 4335879, 5000));
+
+	//osg::ref_ptr<osg::Vec3Array> cardinalPoints = Cardinal(points);
+
+	//std::vector<osg::Vec3>::iterator iter = cardinalPoints->begin();
+
+	//for( ; iter!=cardinalPoints->end(); *iter++)
+	//{
+	//	time += time_delta;
+	//	osg::Vec3 p = *iter++;
+	//	osg::Quat r(osg::inDegrees(0.0f), v1);
+
+	//	animationPath->insert( time, osg::AnimationPath::ControlPoint(p, r));
+	//}
+
+	// end for test
+
 	for ( int i=0; i<numSamples; i++ )
 	{
-		double xt, yt, zt;
-		xt = x + ( x2-x )/numSamples * i;
-		yt = y + ( y2-y )/numSamples * i;
-		zt = z + ( z2-z )/numSamples * i;
-		time += time_delta;
-		osg::Vec3 position(xt, yt, zt);
-		osg::Quat rotation(osg::inDegrees(0.0f), v1);
+	double xt, yt, zt;
+	xt = x + ( x2-x )/numSamples * i;
+	yt = y + ( y2-y )/numSamples * i;
+	zt = z + ( z2-z )/numSamples * i;
+	time += time_delta;
+	osg::Vec3 position(xt, yt, zt);
+	osg::Quat rotation(osg::inDegrees(0.0f), v1);
 
-		animationPath->insert( time, osg::AnimationPath::ControlPoint(position, rotation));
+	animationPath->insert( time, osg::AnimationPath::ControlPoint(position, rotation));
 
 	}
 
@@ -532,3 +594,156 @@ void ESTCoreOSG::createSimplePlane( osg::Vec3d v1, osg::AnimationPath* path )
 }
 
 
+osg::ref_ptr<osg::Vec3Array> ESTCoreOSG::Cardinal( osg::ref_ptr<osg::Vec3Array> point )
+{
+	// 这个 pointer 应该替换为 vPos，就是控制点的集合
+	// 2013-11-20
+	// 处理头尾两个节点
+	std::vector<osg::Vec3>::iterator iter = point->begin();
+	osg::ref_ptr<osg::Vec3Array> ctrlTwo = new osg::Vec3Array();
+	ctrlTwo->push_back( osg::Vec3( (*iter).x()-1, (*iter).y()-1, (*iter).z() ) );
+	ctrlTwo->insert( ++(ctrlTwo->begin() ), point->begin(), point->end() );
+	iter = point->end();
+	iter--;
+	ctrlTwo->push_back( osg::Vec3( (*iter).x()-1, (*iter).y()-1, (*iter).z()-1 ) );
+	iter = ctrlTwo->begin();
+
+	ref_ptr<osg::Vec3Array> cardinal = new osg::Vec3Array();
+
+	for (; iter!=ctrlTwo->end(); *iter++)
+	{
+		osg::Vec3 p0 = *iter++;
+		osg::Vec3 p1 = *iter++;
+		osg::Vec3 p2 = *iter++;
+		if (iter == ctrlTwo->end() )
+		{
+			return cardinal;
+		}
+		osg::Vec3 p3 = *iter;
+
+		iter--;
+		iter--;
+		iter--;
+
+		float t = 0;
+		for ( ; t<=1; t=t+0.1 )
+		{
+			// 高度 5000 不变
+			cardinal->push_back( osg::Vec3( GetCoefficient( p0.x(), p1.x(), p2.x(), p3.x(), t ), GetCoefficient( p0.y(), p1.y(), p2.y(), p3.y(), t ), 5000 ) );
+		}
+	}
+
+	return cardinal;
+
+}
+
+float ESTCoreOSG::GetCoefficient( float p0, float p1, float p2, float p3, float t )
+{
+	float d = p1;
+	float c = 0.5 * ( 1 - t ) * ( p2 - p0 );
+	float a = 0.5 * ( t - 1 ) * p0 + ( 1.5 + 0.5 * t ) * p1 - ( 1.5 + 0.5 * t ) * p2 + 0.5 * ( 1 - t ) * p3;
+	float b = p2 - a - d - c;
+	return ( a * t * t * t + b * t * t + c * t + d );
+}
+
+double ESTCoreOSG::GetAllDistance()
+{
+	float distant  = 0.0 ;
+	osg::Vec3Array::iterator iter = initialPoints ->begin() ;
+
+	const int size = initialPoints->size () ;
+	if (size <= 1)
+		return 0;
+
+	else
+	{
+		for (int i = 0 ;i < size-1 ; i++,iter ++)
+		{
+			osg::Vec3 temp = *iter ;
+			iter ++  ;
+			distant += sqrt ( (temp.x () - (*iter).x())*(temp.x () - (*iter).x())   +  (temp.y ()-(*iter).y ()) * (temp.y ()-(*iter).y())) ;
+			iter -- ;
+		} ;
+	}
+	return distant ;
+}
+
+osg::AnimationPath* ESTCoreOSG::CreatePath(std::string pathName)
+{
+	double sec = 1.0;
+	double looptime = sec * GetAllDistance() ;
+	std::vector <osg::Vec3 > ::iterator iter =initialPoints->end ();
+	std::vector <osg::Vec3 > ::iterator iter2 ;
+	iter--;
+	iter2 = --iter ;
+	iter ++ ;
+
+	initialPoints ->push_back (osg::Vec3 ((*iter).x()-(*(iter2)).x (), (*(iter)).y()-(*(iter2)).y(), (*(iter)).z()-(*(iter2)).z())) ;
+
+	osg::AnimationPath* animationPath = new osg::AnimationPath;
+	animationPath->setLoopMode(osg::AnimationPath::LOOP);
+
+	int numSamples = initialPoints ->size ();
+
+
+	float yaw = 0.0f;
+	float yaw_delta = 0.5;
+	float roll = osg::inDegrees(90.0f);
+
+	double time=0.0f;
+	double time_delta = looptime/(double)numSamples;
+
+	float angle = 0.0 ;
+
+	iter = initialPoints  ->begin () ;
+	for(int i=1;i<numSamples;++i, iter ++)
+	{
+
+		osg::Vec3 position(*iter);
+		iter ++ ;
+		if (iter != initialPoints ->end ())
+		{
+			//这只是一种情况
+			if ((*iter).x() > position.x())
+			{
+				angle = 1.57-atan(  ((*iter).y () - position.y()) /((*iter).x() - position.x())) ;
+				if (angle < 0)
+					angle = 1.57 + angle ;
+			} ;
+
+			if ((*iter).x() < position.x())
+			{
+				angle = -(1.57+atan(  ((*iter).y () - position.y()) /((*iter).x() - position.x()))) ;
+				if (angle > 0)
+					angle = -(1.57 - angle) ;
+			}
+			//对于X=X的情况
+
+		} ;
+
+		osg::Quat rotation(  osg::Quat(roll,osg::Vec3(1.0,0.0,0.0)) * osg::Quat(-angle,osg::Vec3(0.0,0.0,1.0)));
+		osg::Quat rotationY(osg::Quat ( -(3.1415926/6.0), osg::Vec3 (1.0, 0.0, 0.0))) ;
+		//rotation *= rotationY ;
+
+
+		animationPath->insert(time,osg::AnimationPath::ControlPoint(position,rotation));
+		time += GetRunTime (position, *iter) ;
+
+		//yaw -= yaw_delta;
+
+		iter -- ;
+	}
+		
+	//std::ofstream fout(pathName.c_str());
+	//animationPath->write(fout);
+	//fout.close();
+	return animationPath;    
+}
+
+float ESTCoreOSG::GetRunTime(osg::Vec3 res, osg::Vec3 des)
+{
+	float distant = sqrt (  (des.x () - res.x())*(des.x () - res.x())   + (des.y ()-res.y())*(des.y ()-res.y()) ) ;
+	double sec = 1.0f;
+	double init = sec ;
+	return (init * distant);	
+}

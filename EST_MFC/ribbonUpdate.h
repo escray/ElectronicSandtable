@@ -1,5 +1,4 @@
 #pragma once
-
 #include "BHManipulator.h"
 
 #include <vector>

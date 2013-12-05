@@ -1,15 +1,20 @@
 #pragma once
 #include <string>
+#include <sstream>
 
+#include <osg/AnimationPath>
 #include <osg/CameraNode>
 #include <osg/BlendFunc>
 #include <osg/LineWidth>
 #include <osg/MatrixTransform>
+#include <osg/Point>
 #include <osg/PositionAttitudeTransform>
+//#include <osg/io_utils>
 
-#include <osgDB/DatabasePager>
-#include <osgDB/Registry>
+//#include <osgDB/DatabasePager>
+//#include <osgDB/Registry>
 #include <osgDB/ReadFile>
+
 #include <osgGA/TrackballManipulator>
 #include <osgGA/FlightManipulator>
 #include <osgGA/DriveManipulator>
@@ -39,6 +44,29 @@
 #include "planeUpdate.h"
 #include "ribbonUpdate.h"
 //#include "ESTThread.h"
+
+//#pragma once
+//
+//// Compatibility layer for VS2010 bug. The compiler tries to link the same
+//// multiple symbols in for the OSG fstream classes which inherit from the STL
+//// classes. The workaround is to use OSG fstream classes in all places rather
+//// than STL.
+//
+//#ifdef WIN32
+//
+//// Replace STL fstream with OSG fstream
+//#include <osgDB/fstream>
+//#define ifstream osgDB::ifstream
+//#define ofstream osgDB::ofstream
+//
+//#else
+//
+//#include <fstream>
+//#define ifstream std::ifstream
+//#define ofstream std::ofstream
+//
+//#endif
+
 
 // OSG 核心类，在这里执行 MFC 对 OSG 的管理功能
 class ESTCoreOSG //: public ESTThread
@@ -102,6 +130,12 @@ public:
 	osg::AnimationPath* createAnimationPath(const osg::Vec3& center, float radius, double looptime);
 	osg::Node* createMovingModel(const osg::Vec3& center, float radius);
 	osg::AnimationPath* createSimpleAnimationPath( double x, double y, double z, double x2, double y2, double z2, osg::Vec3d v1 );
+	osg::AnimationPath* createCardinalAnimationPath( osg::ref_ptr<osg::Vec3Array> controls );
+	osg::ref_ptr<osg::Vec3Array> Cardinal( osg::ref_ptr<osg::Vec3Array> temp );
+	float GetCoefficient( float p0, float p1, float p2, float p3, float t );
+	osg::AnimationPath* CreatePath(std::string pathName);
+	float GetRunTime(osg::Vec3 res, osg::Vec3 des);
+	double GetAllDistance();
 	//void Update( void );
 
 	//virtual void run();	
@@ -136,5 +170,8 @@ private:
 
 	ESTPickHandler* editpath;
 
-};
+	// 
+	osg::ref_ptr <osg::Vec3Array>  initialPoints ;
+	osg::ref_ptr <osg::Vec3Array>  point ;
 
+};
