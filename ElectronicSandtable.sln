@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EST_MFC", "EST_MFC\EST_MFC.vcxproj", "{B79609B9-9CDE-447A-AB6A-78A3B09EDA69}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "17.PathEdit", "..\OpenSceneGraph\Practice\OSGProgrammingSource\第六章漫游\17.路径漫游\RambleSystem\RambleSystem.vcxproj", "{22D8CFAD-11FE-418E-AD3F-1AA3DF4B14C3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bh-win32.v2", "bh-win32.v2\bh-win32.v2.vcxproj", "{9403590F-931F-450B-915F-5C565B465107}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bh-mfc", "..\bhdata-soft\bh-mfc\bh-mfc.vcxproj", "{88FCB565-1CD6-4DAB-A135-68F75ED25451}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParticleEffect", "ParticleEffect\ParticleEffect.vcxproj", "{E1487BF6-5D5F-49B4-93EE-CED1B1D52B72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,12 +22,24 @@ Global
 		{B79609B9-9CDE-447A-AB6A-78A3B09EDA69}.Release|Win32.Build.0 = Release|Win32
 		{B79609B9-9CDE-447A-AB6A-78A3B09EDA69}.Template|Win32.ActiveCfg = Release|Win32
 		{B79609B9-9CDE-447A-AB6A-78A3B09EDA69}.Template|Win32.Build.0 = Release|Win32
-		{22D8CFAD-11FE-418E-AD3F-1AA3DF4B14C3}.Debug|Win32.ActiveCfg = Debug|Win32
-		{22D8CFAD-11FE-418E-AD3F-1AA3DF4B14C3}.Debug|Win32.Build.0 = Debug|Win32
-		{22D8CFAD-11FE-418E-AD3F-1AA3DF4B14C3}.Release|Win32.ActiveCfg = Release|Win32
-		{22D8CFAD-11FE-418E-AD3F-1AA3DF4B14C3}.Release|Win32.Build.0 = Release|Win32
-		{22D8CFAD-11FE-418E-AD3F-1AA3DF4B14C3}.Template|Win32.ActiveCfg = Template|Win32
-		{22D8CFAD-11FE-418E-AD3F-1AA3DF4B14C3}.Template|Win32.Build.0 = Template|Win32
+		{9403590F-931F-450B-915F-5C565B465107}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9403590F-931F-450B-915F-5C565B465107}.Debug|Win32.Build.0 = Debug|Win32
+		{9403590F-931F-450B-915F-5C565B465107}.Release|Win32.ActiveCfg = Release|Win32
+		{9403590F-931F-450B-915F-5C565B465107}.Release|Win32.Build.0 = Release|Win32
+		{9403590F-931F-450B-915F-5C565B465107}.Template|Win32.ActiveCfg = Release|Win32
+		{9403590F-931F-450B-915F-5C565B465107}.Template|Win32.Build.0 = Release|Win32
+		{88FCB565-1CD6-4DAB-A135-68F75ED25451}.Debug|Win32.ActiveCfg = Debug|Win32
+		{88FCB565-1CD6-4DAB-A135-68F75ED25451}.Debug|Win32.Build.0 = Debug|Win32
+		{88FCB565-1CD6-4DAB-A135-68F75ED25451}.Release|Win32.ActiveCfg = Release|Win32
+		{88FCB565-1CD6-4DAB-A135-68F75ED25451}.Release|Win32.Build.0 = Release|Win32
+		{88FCB565-1CD6-4DAB-A135-68F75ED25451}.Template|Win32.ActiveCfg = Release|Win32
+		{88FCB565-1CD6-4DAB-A135-68F75ED25451}.Template|Win32.Build.0 = Release|Win32
+		{E1487BF6-5D5F-49B4-93EE-CED1B1D52B72}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E1487BF6-5D5F-49B4-93EE-CED1B1D52B72}.Debug|Win32.Build.0 = Debug|Win32
+		{E1487BF6-5D5F-49B4-93EE-CED1B1D52B72}.Release|Win32.ActiveCfg = Release|Win32
+		{E1487BF6-5D5F-49B4-93EE-CED1B1D52B72}.Release|Win32.Build.0 = Release|Win32
+		{E1487BF6-5D5F-49B4-93EE-CED1B1D52B72}.Template|Win32.ActiveCfg = Release|Win32
+		{E1487BF6-5D5F-49B4-93EE-CED1B1D52B72}.Template|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

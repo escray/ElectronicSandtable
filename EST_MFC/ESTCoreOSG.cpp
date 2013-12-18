@@ -38,11 +38,20 @@ ESTCoreOSG::~ESTCoreOSG(void)
 }
 
 // 全局变量，需要移除
-osg::ref_ptr<planeUpdate> planeCb1 = new planeUpdate;
-osg::ref_ptr<ribbonUpdate> ribbonCb1 = new ribbonUpdate;
+osg::ref_ptr<planeUpdate> planeUpdate1 = new planeUpdate;
+osg::ref_ptr<ribbonUpdate> ribbonUpdate1 = new ribbonUpdate;
 
-osg::ref_ptr<planeUpdate> planeCb2 = new planeUpdate;
-osg::ref_ptr<ribbonUpdate> ribbonCb2 = new ribbonUpdate;
+osg::ref_ptr<planeUpdate> planeUpdate2 = new planeUpdate;
+osg::ref_ptr<ribbonUpdate> ribbonUpdate2 = new ribbonUpdate;
+
+osg::ref_ptr<planeUpdate >planeCb1=new planeUpdate;
+osg::ref_ptr<planeUpdate >planeCb2=new planeUpdate;
+osg::ref_ptr<planeUpdate >planeCb3=new planeUpdate;
+osg::ref_ptr<planeUpdate >planeCb4=new planeUpdate;
+osg::ref_ptr<ribbonUpdate>ribbonCb1=new ribbonUpdate;
+osg::ref_ptr<ribbonUpdate>ribbonCb2=new ribbonUpdate;
+osg::ref_ptr<ribbonUpdate>ribbonCb3=new ribbonUpdate;
+osg::ref_ptr<ribbonUpdate>ribbonCb4=new ribbonUpdate;
 
 
 void ESTCoreOSG::InitOSG( std::string filename )
@@ -69,15 +78,128 @@ void ESTCoreOSG::InitOSG( std::string filename )
 	osg::Vec3d vAxis( (39.0+1.0/3600)*RadianPerDegree, 116.3*RadianPerDegree, 5000 );
 
 	// planeCB1 的初始化是否可以放到函数里面？
-	CreatePlane(model, vPos, vStart, vStop, vAxis, planeCb1);
-	CreateRibbon(vPos, ribbonCb1);
-	// 添加的飞机模型无法显示，考虑采用经纬度再试一次
+	CreatePlane(model, vPos, vStart, vStop, vAxis, planeUpdate1);
+	CreateRibbon(vPos, ribbonUpdate1);
+	// 添加的飞机模型无法显示，考虑采用经纬度再试一次	
+	osg::ref_ptr<osg::MatrixTransform> mt1=new osg::MatrixTransform;
+	mt1->addChild(model);
+	m_root->addChild(mt1);
 
+	osg::ref_ptr<osg::MatrixTransform> mt2=new osg::MatrixTransform;
+	mt2->addChild(model);
+	m_root->addChild(mt2);
+	double x,y,z;
+	osg::EllipsoidModel elm;
+	elm.setRadiusEquator(6378137);
+	elm.setRadiusPolar(6378137);
 
-	
-	
+	//机头指向-Y,翅膀X,
+	{
+		elm.convertLatLongHeightToXYZ(39.5*osg::PI/180.0,116.3*osg::PI/180.0,5000,x,y,z);
 
+		double x1,y1,z1;
+		elm.convertLatLongHeightToXYZ((39.5+1.0/3600.0)*osg::PI/180.0,116.3*osg::PI/180.0,5000,x1,y1,z1);
+		osg::Vec3d v1=osg::Vec3d(x1,y1,z1)-osg::Vec3d(x,y,z);
+		//飞机轴线位置
+		osg::Vec3d v0=osg::Vec3d(-8.4,32.3-4898.6,476.4-550.4);
 
+		mt1->setMatrix(osg::Matrix::rotate(v0,v1)*
+			osg::Matrix::translate(x,y,z));
+
+		planeCb1->setAxis(v0);
+
+		std::vector<osg::Vec3d>vDir,vPos;
+		vDir.push_back(v1);			
+		vPos.push_back(osg::Vec3d(x,y,z));
+
+		double x2,y2,z2;
+		elm.convertLatLongHeightToXYZ((39.8+1.0/3600.0)*osg::PI/180.0,116.3*osg::PI/180.0,5000,x2,y2,z2);
+
+		double dh=10.0;
+		for(int i=0;i<100;i++)
+		{
+			double xt,yt,zt;
+			xt=x+(x2-x)/100.0*i;
+			yt=y+(y2-y)/100.0*i;
+			zt=z+(z2-z)/100.0*i;
+
+			osg::Vec3d pt=osg::Vec3d(xt,yt,zt);
+			vPos.push_back(pt);
+			vDir.push_back(v1);
+
+		}
+		planeCb1->setPos(vPos);
+		planeCb1->setDir(vDir);
+		planeCb1->setAngle(osg::PI);		
+
+		mt1->setUpdateCallback(planeCb1);
+
+		ribbonCb1->setPos(vPos);
+		ribbonCb1->setNp(true);				
+		ribbonCb1->setA(osg::PI);
+		ribbonCb1->setEmp(estManipulator.get());
+
+		osg::ref_ptr<osg::Geometry>gm=createRibbonNode();	
+		osg::ref_ptr<osg::Geode>ge=new osg::Geode();
+		ge->addDrawable(gm.get());
+		gm->setUpdateCallback(ribbonCb1);	
+		gm->setDataVariance(osg::Object::DYNAMIC);
+
+		m_root->addChild(ge.get());
+
+	}
+
+	{
+		elm.convertLatLongHeightToXYZ(39.0*osg::PI/180.0,116.2*osg::PI/180.0,5000,x,y,z);
+
+		double x1,y1,z1;
+		elm.convertLatLongHeightToXYZ((39.0+1.0/3600.0)*osg::PI/180.0,116.2*osg::PI/180.0,5000,x1,y1,z1);
+		osg::Vec3d v1=osg::Vec3d(x1,y1,z1)-osg::Vec3d(x,y,z);
+		//飞机轴线位置
+		osg::Vec3d v0=osg::Vec3d(-8.4,32.3-4898.6,476.4-550.4);
+
+		mt2->setMatrix(osg::Matrix::rotate(v0,v1)*
+			osg::Matrix::translate(x,y,z));
+
+		planeCb2->setAxis(v0);
+
+		std::vector<osg::Vec3d>vDir,vPos;
+		vDir.push_back(v1);			
+		vPos.push_back(osg::Vec3d(x,y,z));
+
+		double x2,y2,z2;
+		elm.convertLatLongHeightToXYZ((41.5+1.0/3600.0)*osg::PI/180.0,116.2*osg::PI/180.0,5000,x2,y2,z2);
+
+		for(int i=0;i<100;i++)
+		{
+			double xt,yt,zt;
+			xt=x+(x2-x)/100.0*i;
+			yt=y+(y2-y)/100.0*i;
+			zt=z+(z2-z)/100.0*i;
+
+			vPos.push_back(osg::Vec3d(xt,yt,zt));
+			vDir.push_back(v1);
+
+		}
+		planeCb2->setPos(vPos);
+		planeCb2->setDir(vDir);
+		planeCb2->setAngle(osg::PI);
+
+		mt2->setUpdateCallback(planeCb2);
+
+		ribbonCb2->setPos(vPos);				
+		ribbonCb2->setNp(true);				
+		ribbonCb2->setA(osg::PI);
+		ribbonCb2->setEmp(estManipulator);
+
+		osg::ref_ptr<osg::Geometry>gm=createRibbonNode();	
+		osg::ref_ptr<osg::Geode>ge=new osg::Geode();
+		ge->addDrawable(gm.get());
+		gm->setUpdateCallback(ribbonCb2);				
+		gm->setDataVariance(osg::Object::DYNAMIC);
+
+		m_root->addChild(ge.get());
+	}
 
 
 
@@ -197,13 +319,39 @@ void ESTCoreOSG::Render( void* ptr )
 	ESTCoreOSG* osg = (ESTCoreOSG*)ptr;
 	osgViewer::Viewer* viewer = osg->getViewer();
 
+	double scale = 1.0;
+	osg::Vec3 position;
+	osg::Vec3 center;
+	osg::Vec3 up;
+	double currentHeight = 4015930.0;
+
+
+	//scale = calculateScale()
+
 	while (!viewer->done())
 	{
+		viewer->getCamera()->getViewMatrixAsLookAt(position, center, up);
+
+		currentHeight = position[2];
+		scale = calculateScale(currentHeight);
+
 		long k = viewer->getFrameStamp()->getFrameNumber();
 		if ( k % 10 == 0)
 		{
+			planeUpdate1->setUpdate(true);
+			planeUpdate1->setScale(scale);
+			ribbonUpdate1->setUpdate(true);
+
 			planeCb1->setUpdate(true);
 			ribbonCb1->setUpdate(true);
+
+			planeCb2->setUpdate(true);
+			ribbonCb2->setUpdate(true);
+			/*planeCb3->setUpdate(true);			
+			ribbonCb3->setUpdate(true);
+			planeCb4->setUpdate(true);
+			ribbonCb4->setUpdate(true);*/
+
 		}
 		osg->PreFrameUpdate();
 		viewer->frame();
@@ -371,7 +519,7 @@ void ESTCoreOSG::CreateRibbon( std::vector<osg::Vec3d> vPos, osg::ref_ptr<ribbon
 	ribboncb->setPos( vPos );
 	ribboncb->setNp( true );
 	ribboncb->setA( osg::PI );
-	ribboncb->setEmp( bhManipulator );
+	ribboncb->setEmp( estManipulator );
 
 	osg::ref_ptr<osg::Geode> ge = new osg::Geode();
 	osg::ref_ptr<osg::Geometry> gm = createRibbonNode();
@@ -484,6 +632,7 @@ osg::AnimationPath* ESTCoreOSG::createSimpleAnimationPath( double x, double y, d
 	animationPath->setLoopMode(osg::AnimationPath::LOOP);
 	
 	double looptime = 10;
+
 	int numSamples = 100;
 	double time = 0.0f;
 	double time_delta = looptime/(double)numSamples;
@@ -525,8 +674,6 @@ osg::AnimationPath* ESTCoreOSG::createSimpleAnimationPath( double x, double y, d
 	animationPath->insert( time, osg::AnimationPath::ControlPoint(position, rotation));
 
 	}
-
-
 	return animationPath;
 }
 
@@ -746,4 +893,30 @@ float ESTCoreOSG::GetRunTime(osg::Vec3 res, osg::Vec3 des)
 	double sec = 1.0f;
 	double init = sec ;
 	return (init * distant);	
+}
+
+double ESTCoreOSG::calculateScale( double currentHeight )
+{
+	double scale = 1.0;
+	double maxHeight = 4300000.0;
+	double maxScale = 1.5;
+	double minScale = 0.75;
+
+	double left = sqrt(1-minScale/(maxScale + minScale)) * maxHeight;
+	double right = sqrt(1-maxScale/(maxScale + minScale)) * maxHeight;
+
+	if ( currentHeight <= left)
+	{
+		scale = maxScale;
+	}
+	else if (currentHeight >= right)
+	{
+		scale = minScale;
+	}
+	else
+	{
+		scale = (1 - pow((currentHeight/maxHeight), 2))*maxScale;
+	}
+
+	return scale;
 }

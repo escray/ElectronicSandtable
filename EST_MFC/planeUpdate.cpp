@@ -6,7 +6,7 @@ planeUpdate::planeUpdate(void)
 {
 	_updatePos = true;
 	_posIndex = 0;
-	_scale = 1.0;
+	m_scale = 1.0;
 }
 
 
@@ -37,8 +37,9 @@ void planeUpdate::operator()( osg::Node* node, osg::NodeVisitor* nv )
 	elm.computeLocalToWorldTransformFromLatLongHeight( b, l, h, md );
 	// 夸张飞机
 	// 安置飞机，先夸张，再安置
-	// TODO: 飞机根据视点位置放大缩小
-	md = osg::Matrixd::scale( 1.0, 1.0, 1.0 ) * md * osg::Matrixd::rotate( _angle, n );
+	// 飞机根据视点位置放大缩小
+	
+	md = osg::Matrixd::scale( m_scale, m_scale, m_scale ) * md * osg::Matrixd::rotate( m_angle, n );
 
 	mt->setMatrix( osg::Matrix::identity() );
 	mt->setMatrix( md );
@@ -62,7 +63,7 @@ void planeUpdate::setPos( std::vector<osg::Vec3d> vPos )
 
 void planeUpdate::setAxis( osg::Vec3d axis )
 {
-	_axis = axis;
+	m_axis = axis;
 }
 
 void planeUpdate::setDir( std::vector<osg::Vec3d> vDir )
@@ -72,10 +73,10 @@ void planeUpdate::setDir( std::vector<osg::Vec3d> vDir )
 
 void planeUpdate::setScale( double scale )
 {
-	_scale = scale;
+	m_scale = scale;
 }
 
 void planeUpdate::setAngle( double angle )
 {
-	_angle = angle;
+	m_angle = angle;
 }

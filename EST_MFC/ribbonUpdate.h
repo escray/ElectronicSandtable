@@ -5,6 +5,7 @@
 #include <osgViewer/Viewer>
 #include <osg/MatrixTransform>
 #include <osgUtil/SmoothingVisitor>
+#include "ESTManipulator.h"
 
 class ribbonUpdate :
 	public osg::Drawable::UpdateCallback
@@ -24,7 +25,7 @@ public:
 	void setA(double a);
 	// zhaorui 2013-11-19
 	// 这里应该可以将 BHmanipulator 进一步抽象为 osgGA::CameraManipulator
-	void setEmp(BHManipulator* emp);
+	void setEmp(ESTManipulator* emp);
 	
 
 public:
@@ -40,5 +41,6 @@ public:
 	double _a;
 	// 漫游操作器
 	osg::ref_ptr<BHManipulator> _emp;
+	osg::ref_ptr<ESTManipulator> m_estmanipulator;
 };
 

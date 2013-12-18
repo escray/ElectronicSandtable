@@ -40,11 +40,11 @@ private:
 	// 方向信息
 	std::vector<osg::Vec3d> _vDir;
 	// 飞机轴向信息
-	osg::Vec3d _axis;
+	osg::Vec3d m_axis;
 	// 缩放比例系数，用于夸张，使飞机可见
-	double _scale;
+	double m_scale;
 	// ?
-	double _angle;
+	double m_angle;
 
 };
 

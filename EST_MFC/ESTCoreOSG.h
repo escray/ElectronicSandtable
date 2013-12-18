@@ -136,6 +136,7 @@ public:
 	osg::AnimationPath* CreatePath(std::string pathName);
 	float GetRunTime(osg::Vec3 res, osg::Vec3 des);
 	double GetAllDistance();
+	static double calculateScale( double currentHeight );
 	//void Update( void );
 
 	//virtual void run();	

@@ -2,6 +2,7 @@
 #include "ribbonUpdate.h"
 
 
+
 ribbonUpdate::ribbonUpdate(void)
 {
 	_updatePos = true;
@@ -100,7 +101,7 @@ void ribbonUpdate::setA( double a )
 	_a = a;
 }
 
-void ribbonUpdate::setEmp( BHManipulator* emp )
+void ribbonUpdate::setEmp( ESTManipulator* emp )
 {
-
+	m_estmanipulator = emp;
 }
