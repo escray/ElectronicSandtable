@@ -1,3 +1,5 @@
+// 烟雾粒子效果
+
 #include <StdAfx.h>
 #include <osgViewer/Viewer>
 
@@ -22,10 +24,12 @@
 #include <osgParticle/FireEffect>
 
 // for the grid data..
+// 地形数据
 #include "terrain_coords.h"
 
 osg::Vec3 wind(1.0f,0.0f,0.0f);            
 
+// 创建动画路径
 osg::AnimationPath* createAnimationPath(const osg::Vec3& center,float radius,double looptime)
 {
     // set up the animation path 
@@ -53,6 +57,7 @@ osg::AnimationPath* createAnimationPath(const osg::Vec3& center,float radius,dou
     return animationPath;    
 }
 
+// 创建移动模型
 osg::Node* createMovingModel(const osg::Vec3& center, float radius)
 {
     float animationLength = 100.0f;
@@ -111,7 +116,7 @@ osg::Node* createMovingModel(const osg::Vec3& center, float radius)
     return model;
 }
 
-
+// 计算屏幕相交点
 osg::Vec3 computeTerrainIntersection(osg::Node* subgraph,float x,float y)
 {
     const osg::BoundingSphere& bs = subgraph->getBound();
@@ -138,6 +143,7 @@ osg::Vec3 computeTerrainIntersection(osg::Node* subgraph,float x,float y)
 // MAIN SCENE GRAPH BUILDING FUNCTION
 //////////////////////////////////////////////////////////////////////////////
 
+// 创建地形模型
 void build_world(osg::Group *root)
 {
 
